@@ -1,0 +1,7 @@
+base    crypt
+author  Scott Moser (Updated by Ahmet Sacan)
+email   smoser [at] brickies [dot] net
+date    2013-02-25
+name    Dokucrypt plugin
+desc    A plugin to support client side cryptography
+url     https://www.dokuwiki.org/plugin:dokucrypt

@@ -3,7 +3,8 @@ var tag_enc="ENCRYPTED";
 var tag_pt="SECRET";
 var encryptForSubmitInUse=false;
 
-addInitEvent(function() { return(decryptEditSetup()); });
+/* ahmetsacan: this causes the edit toolbar to break. we moved it into action.php */
+/* addInitEvent(function() { return(decryptEditSetup()); }); */
 
 // the function here is borrowed from an anonymous function in
 // lib/scripts/edit.js (initChangeCheck()).  
