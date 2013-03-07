@@ -27,7 +27,7 @@ class syntax_plugin_crypt extends DokuWiki_Syntax_Plugin {
         return array(
             'author' => 'Scott Moser',
             'email'  => 'smoser@brickies.net',
-            'date'   => '2007-01-05',
+            'date'   => '2009-02-17',
             'name'   => 'Client Side Encryption Plugin',
             'desc'   => 'Allows Javascript Encryption of wiki text',
             'url'    => 'http://brickies.net/wiki/dokucrypt:start',
@@ -94,7 +94,7 @@ class syntax_plugin_crypt extends DokuWiki_Syntax_Plugin {
                   "class='wikilink1 JSnocheck' " .
                   "href=\"javascript:toggleCryptDiv(" .
                   "'$curid','" . $this->curLock["lock"] . "','" . 
-                  str_replace("\n","\\n",$match) . "');\">" .
+                  hsc(str_replace("\n","\\n",$match)) . "');\">" .
                   "Decrypt Encrypted Text</a>" .
                   "[<a class='wikilink1 JSnocheck' " .
                   "href=\"javascript:toggleElemVisibility('$curid');\">" .
@@ -103,7 +103,7 @@ class syntax_plugin_crypt extends DokuWiki_Syntax_Plugin {
                      (($this->curLock["collapsed"] == 1) ?
                         "visibility:hidden;position:absolute" :
                         "visibility:visible;position:relative" ) .
-                  "\">$match</PRE>";
+                  "\">".hsc($match)."</PRE>";
                 $this->curNum++;
                 break;
               case DOKU_LEXER_EXIT :
