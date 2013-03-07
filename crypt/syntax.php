@@ -52,13 +52,22 @@ class syntax_plugin_crypt extends DokuWiki_Syntax_Plugin {
         switch ($state) {
           case DOKU_LEXER_ENTER :
                 // parse something like <ENCRYPTED> or <ENCRYPTED LOCK=foo>
-                $lock="default";
+                $attr=array( "lock" => "default", "collapsed" => "0" );
                 if(($x=strpos($match,"LOCK="))!==false) {
-                    $end=strpos($match," ",$x);
-                    if($end===false) { $end=-1; }
-                    $lock=substr($match,$x+5,$end); // 5 = strlen(LOCK=)
+                    $x+=strlen("LOCK=");
+                    if(($end=strpos($match," ",$x))!==false) {
+                       $len=$end-$x;
+                    } else { $len=-1; }
+                    $attr["lock"]=substr($match,$x,$len); 
                 }
-                return(array($state,$lock));
+                if(($x=strpos($match,"COLLAPSED="))!==false) {
+                    $x+=strlen("COLLAPSED=");
+                    if(($end=strpos($match," ",$x))!==false) {
+                       $len=$end-$x;
+                    } else { $len=-1; }
+                    $attr["collapsed"]=substr($match,$x,$len);
+                }
+                return(array($state,$attr));
           case DOKU_LEXER_UNMATCHED :  return array($state, $match);
           case DOKU_LEXER_EXIT :       return array($state, '');
         }
@@ -84,10 +93,17 @@ class syntax_plugin_crypt extends DokuWiki_Syntax_Plugin {
                 $renderer->doc.="<a id='$curid" . "_atag' " .
                   "class='wikilink1 JSnocheck' " .
                   "href=\"javascript:toggleCryptDiv(" .
-                  "'$curid','" . $this->curLock . "','" . 
+                  "'$curid','" . $this->curLock["lock"] . "','" . 
                   str_replace("\n","\\n",$match) . "');\">" .
-                  "Decrypt Encrypted Text</a>\n" .
-                  "<PRE id='$curid'>$match</PRE>";
+                  "Decrypt Encrypted Text</a>" .
+                  "[<a class='wikilink1 JSnocheck' " .
+                  "href=\"javascript:toggleElemVisibility('$curid');\">" .
+                  "Toggle Visible</a>]\n" .
+                  "<PRE id='$curid' style=\"" .
+                     (($this->curLock["collapsed"] == 1) ?
+                        "visibility:hidden;position:absolute" :
+                        "visibility:visible;position:relative" ) .
+                  "\">$match</PRE>";
                 $this->curNum++;
                 break;
               case DOKU_LEXER_EXIT :

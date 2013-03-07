@@ -152,6 +152,17 @@ function setKeyFromAscii(pass) {
   return(key);
 }
 
+function toggleElemVisibility(elemid) {
+   elem=document.getElementById(elemid);
+   if(elem.style.visibility=="visible") {
+      elem.style.visibility="hidden";
+      elem.style.position="absolute";
+   } else {
+      elem.style.visibility="visible";
+      elem.style.position="relative";
+   }
+}
+
 /*
   this is called from <A HREF=> links to decrypt the  inline html
 */
@@ -176,6 +187,9 @@ function toggleCryptDiv(elemid,lock,ctext) {
       }
       elem.innerHTML=ptext;
       atag.innerHTML=ptStr;
+      // make it visible
+      elem.style.visibility="visible";
+      elem.style.position="relative";
    } else { alert("Broken"); return; }
 }
 
@@ -287,10 +301,14 @@ function decryptBlock(data,key) {
   lock=getTagAttr(data.substring(0,tagend+1),"LOCK");
   if(lock===null) { lock="default"; }
 
+  collapsed=getTagAttr(data.substring(0,tagend+1),"COLLAPSED");
+  if(collapsed===null) { collapsed="0"; }
+
   if(!(ptext=verifyDecrypt(data.substring(tagend+1,ptend),lock,key))) {
     return(false);
   }
-  return("<" + tag_pt + " LOCK=" + lock + ">" + ptext + "</" + tag_pt + ">");
+  return("<" + tag_pt + " LOCK=" + lock + " " +
+     "COLLAPSED=" + collapsed + ">" + ptext + "</" + tag_pt + ">");
 }
 
 // for getTagAttr("<FOO ATTR=val>","ATTR"), return "val"
@@ -319,6 +337,9 @@ function encryptBlock(data,key) {
   lock=getTagAttr(data.substring(0,tagend+1),"LOCK");
   if(lock===null) { lock="default"; }
 
+  collapsed=getTagAttr(data.substring(0,tagend+1),"COLLAPSED");
+  if(collapsed===null) { collapased="0"; }
+
   if(key===false) {
     key=getEncryptionKeyForLock(lock);
     if(key===false) { return(false); }
@@ -326,7 +347,8 @@ function encryptBlock(data,key) {
   if(!(ctext=encryptTextString(data.substring(tagend+1,ptend),key))) {
     return(false); 
   }
-  return("<ENCRYPTED LOCK=" + lock + ">" + ctext + "</ENCRYPTED>");
+  return("<ENCRYPTED LOCK=" + lock + " " +
+     "COLLAPSED=" + collapsed + ">" + ctext + "</ENCRYPTED>");
 }
 
 
