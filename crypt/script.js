@@ -59,9 +59,10 @@ function decryptEditSetup(msg) {
   // decryptButton.setAttribute('onclick',decryptEditForm);
   decryptButton.onclick=decryptEditForm;
   decryptButton.setAttribute('class','button');
+  decryptButton.setAttribute('className','button'); // required for IE
   preview.parentNode.insertBefore(decryptButton,preview);
 
-  editform.setAttribute('onsubmit', 'return(editFormOnSubmit())');
+  editform.onsubmit = function() {return editFormOnSubmit();};
 
   // the following is taken from lib/scripts/edit.js to make drafts work
   locktimer.refresh = function(){
