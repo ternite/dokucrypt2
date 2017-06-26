@@ -1,0 +1,7 @@
+base    dokucrypt2
+author  Scott Moser,  Maintained by Sherri W. (@SherriOnline / http://syntaxseed.com)
+email   smoser [at] brickies [dot] net
+date    2017-06-25
+name    Dokucrypt plugin v2.
+desc    A plugin to support client side cryptography.
+url     https://www.dokuwiki.org/plugin:dokucrypt2

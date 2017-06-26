@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin DokuCrypt: Enables client side encryption
+ * Plugin DokuCrypt2: Enables client side encryption
  * 
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     Scott Moser <smoser@brickies.net>
+ * @author     Scott Moser <smoser@brickies.net>, Maintainer Sherri W. ( contact me at syntaxseed.com)
  */
  
 // must be run within Dokuwiki
@@ -16,7 +16,7 @@ require_once(DOKU_PLUGIN.'syntax.php');
  * All DokuWiki plugins to extend the parser/rendering mechanism
  * need to inherit from this class
  */
-class syntax_plugin_crypt extends DokuWiki_Syntax_Plugin {
+class syntax_plugin_dokucrypt2 extends DokuWiki_Syntax_Plugin {
  
     var $curNum=0;
     var $curLock=0;
@@ -25,12 +25,12 @@ class syntax_plugin_crypt extends DokuWiki_Syntax_Plugin {
      */
     function getInfo(){
         return array(
-            'author' => 'Scott Moser',
+            'author' => 'Scott Moser, Maintainer Sherri W. ( contact me at syntaxseed.com)',
             'email'  => 'smoser@brickies.net',
-            'date'   => '2009-02-17',
+            'date'   => '2017-06-25',
             'name'   => 'Client Side Encryption Plugin',
-            'desc'   => 'Allows Javascript Encryption of wiki text',
-            'url'    => 'http://brickies.net/wiki/dokucrypt:start',
+            'desc'   => 'Allows Javascript Encryption of wiki text.',
+            'url'    => 'https://www.dokuwiki.org/plugin:dokucrypt2',
         );
     }
  
@@ -39,10 +39,10 @@ class syntax_plugin_crypt extends DokuWiki_Syntax_Plugin {
     function getSort(){ return 999; }
     function connectTo($mode) { 
         $this->Lexer->addEntryPattern('<ENCRYPTED.*?>(?=.*?</ENCRYPTED>)',
-            $mode,'plugin_crypt'); 
+            $mode,'plugin_dokucrypt2'); 
     }
     function postConnect() { 
-        $this->Lexer->addExitPattern('</ENCRYPTED>','plugin_crypt'); 
+        $this->Lexer->addExitPattern('</ENCRYPTED>','plugin_dokucrypt2'); 
     }
  
     /**
