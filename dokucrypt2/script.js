@@ -65,13 +65,48 @@ function decryptEditSetup(msg) {
 
   editform.onsubmit = function() {return editFormOnSubmit();};
 
-  // the following is taken from lib/scripts/edit.js to make drafts work
-  locktimer.refresh = function(){
+  // The following is taken from lib/scripts/locktimer.js to make drafts work.
+  // We override the locktimer refresh function to abort saving of drafts with unencrypted content.
+  dw_locktimer.refresh = function(){
+
+      var now = new Date(),
+              params = 'call=lock&id=' + dw_locktimer.pageid + '&';
+
+          // refresh every minute only
+          if(now.getTime() - dw_locktimer.lasttime.getTime() <= 30*1000) {
+              return;
+          }
+
+          // POST everything necessary for draft saving
+          if(dw_locktimer.draft && jQuery('#dw__editform').find('textarea[name=wikitext]').length > 0){
+              
+              // *** BEGIN dokucrypt modified code
+              // Do not allow saving of a draft, if this page needs some content to be encrypted on save.
+              // Basically abort saving of drafts if this page has some content that needs encrypting.
+              if(encryptForSubmit()===false) { return(false); }
+              // *** END dokucrypt modified code
+
+              params += jQuery('#dw__editform').find('input[name=prefix], ' +
+                                                     'textarea[name=wikitext], ' +
+                                                     'input[name=suffix], ' +
+                                                     'input[name=date]').serialize();
+          }
+
+          jQuery.post(
+              DOKU_BASE + 'lib/exe/ajax.php',
+              params,
+              dw_locktimer.refreshed,
+              'html'
+          );
+          dw_locktimer.lasttime = now;
+
+
+      /* // ---------------- PREVIOUS VERSION OF DOKUWIKI --------------
       var now = new Date();
       // refresh every minute only
-      if(now.getTime() - locktimer.lasttime.getTime() > 30*1000){ //FIXME decide on time
-          var params = 'call=lock&id='+encodeURIComponent(locktimer.pageid);
-          if(locktimer.draft){
+      if(now.getTime() - dw_locktimer.lasttime.getTime() > 30*1000){ //FIXME decide on time
+          var params = 'call=lock&id='+encodeURIComponent(dw_locktimer.pageid);
+          if(dw_locktimer.draft){
               var dwform = $('dw__editform');
               // begin plugin modified code
               if(encryptForSubmit()===false) { return(false); }
@@ -81,9 +116,11 @@ function decryptEditSetup(msg) {
               params += '&suffix='+encodeURIComponent(dwform.elements.suffix.value);
               params += '&date='+encodeURIComponent(dwform.elements.date.value);
           }
-          locktimer.sack.runAJAX(params);
-          locktimer.lasttime = now;
+          dw_locktimer.sack.runAJAX(params);
+          dw_locktimer.lasttime = now;
       }
+      // ---------------------------------- Previous Version ---------------
+      */
   };
 }
 

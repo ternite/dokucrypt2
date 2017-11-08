@@ -1,0 +1,7 @@
+base   dokucrypt2
+author By Scott Moser, maintained by Sherri W.
+email  Twitter @SherriOnline or http://SyntaxSeed.com
+date   2017-11-08
+name   DokuCrypt 2
+desc   A plugin to support client side cryptography enabling encrypting blocks of text within a wiki page.
+url    https://www.dokuwiki.org/plugin:dokucrypt2

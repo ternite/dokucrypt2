@@ -1,7 +1,0 @@
-2017-06-25 - I am not sure if this is needed any longer.
-
-This plugin unfortunately requires some changes to docuwiki code to allow it to
-function.  These changes are distributed as patches here.
-
-They are also available in git branch format at 
-https://github.com/smoser/dokuwiki
