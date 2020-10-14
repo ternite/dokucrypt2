@@ -11,13 +11,16 @@ class action_plugin_dokucrypt2 extends DokuWiki_Action_Plugin {
 
         //$event->data['script'][]=array('type'=>'text/javascript','charset'=>'utf-8','_data'=>'','_data'=>"addInitEvent(function() { return(decryptEditSetup()); });");
 
-        //$event->data['script'][]=array('type'=>'text/javascript','charset'=>'utf-8','_data'=>'','_data'=>"jQuery(function(){ return(decryptEditSetup()); });");
+        //$event->data['script'][]=array('type'=>'text/javascript', 'defer' => 'defer', 'charset'=>'utf-8', '_data'=>'', '_data'=>"jQuery(function(){ return(decryptEditSetup()); });");
+
 
         $event->data["script"][] = array (
             "type" => "text/javascript",
             "src" => DOKU_BASE."lib/plugins/dokucrypt2/init.js",
+            "defer" => "defer",
             "_data" => "",
         );
+
 
 	}
 }
