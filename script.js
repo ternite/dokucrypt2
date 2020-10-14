@@ -7,13 +7,13 @@ var encryptForSubmitInUse=false;
 /* addInitEvent(function() { return(decryptEditSetup()); }); */
 
 // the function here is borrowed from an anonymous function in
-// lib/scripts/edit.js (initChangeCheck()).  
+// lib/scripts/edit.js (initChangeCheck()).
 // This should be replaced with some way that a plugin can request
 // onSubmit handlers for a given form element
 function editFormOnSubmit() {
   // begin plugin modified code
   // need the following to avoid 'msg is not defined' error. I'mnot sure why
-  var msg="Unsaved changes will be lost [edt].\nReally continue?"; 
+  var msg="Unsaved changes will be lost [edt].\nReally continue?";
   if(encryptForSubmit()===false) { return(false); }
   // end plugin modified code
   var rc = changeCheck(msg);
@@ -21,108 +21,8 @@ function editFormOnSubmit() {
   return rc;
 }
 
-function decryptEditSetup(msg) {
-  var editform=null, wikitext=null, hiddentext=null, preview=null;
-  if(!(editform=document.getElementById('dw__editform'))) { 
-    // alert("no form dw__editform\n");
-    return(true); 
-  }
-  if(!(wikitext=document.getElementById('wiki__text'))) {
-   // alert("no wiki__text");
-   return(false);
-  }
-  // if there is no preview button, then assume this is a
-  // "Recover draft" page, dont do anything.
-  if(!(preview=document.getElementById('edbtn__preview'))) {
-    return(false);
-  }
-
-  // create a hidden element with id 'wiki__text_submit' and
-  // name wikitext_edit (same as the wiki__text.  move the real
-  // wikI__text element out of the form (so it is not submitted and
-  // any <SECRET> text left unencrypted
-  if(!(hiddentext=document.createElement('input'))) {
-   return(false);
-  }
-  hiddentext.setAttribute('id', 'wiki__text_submit');
-  hiddentext.setAttribute('name', 'wikitext');
-  hiddentext.setAttribute('type','hidden');
-  editform.insertBefore(hiddentext,null);
-  editform.parentNode.insertBefore(wikitext,editform);
-
-  if(!(decryptButton=document.createElement('input'))) {
-   return(false);
-  }
-  decryptButton.setAttribute('id', 'decryptButton');
-  decryptButton.setAttribute('name', 'decryptButton');
-  decryptButton.setAttribute('type','Button');
-  decryptButton.setAttribute('value','DecryptSecret');
-  // decryptButton.setAttribute('onclick',decryptEditForm);
-  decryptButton.onclick=decryptEditForm;
-  decryptButton.setAttribute('class','button');
-  decryptButton.setAttribute('className','button'); // required for IE
-  preview.parentNode.insertBefore(decryptButton,preview);
-
-  editform.onsubmit = function() {return editFormOnSubmit();};
-
-  // The following is taken from lib/scripts/locktimer.js to make drafts work.
-  // We override the locktimer refresh function to abort saving of drafts with unencrypted content.
-  dw_locktimer.refresh = function(){
-
-      var now = new Date(),
-              params = 'call=lock&id=' + dw_locktimer.pageid + '&';
-
-          // refresh every minute only
-          if(now.getTime() - dw_locktimer.lasttime.getTime() <= 30*1000) {
-              return;
-          }
-
-          // POST everything necessary for draft saving
-          if(dw_locktimer.draft && jQuery('#dw__editform').find('textarea[name=wikitext]').length > 0){
-              
-              // *** BEGIN dokucrypt modified code
-              // Do not allow saving of a draft, if this page needs some content to be encrypted on save.
-              // Basically abort saving of drafts if this page has some content that needs encrypting.
-              if(encryptForSubmit()===false) { return(false); }
-              // *** END dokucrypt modified code
-
-              params += jQuery('#dw__editform').find('input[name=prefix], ' +
-                                                     'textarea[name=wikitext], ' +
-                                                     'input[name=suffix], ' +
-                                                     'input[name=date]').serialize();
-          }
-
-          jQuery.post(
-              DOKU_BASE + 'lib/exe/ajax.php',
-              params,
-              dw_locktimer.refreshed,
-              'html'
-          );
-          dw_locktimer.lasttime = now;
-
-
-      /* // ---------------- PREVIOUS VERSION OF DOKUWIKI --------------
-      var now = new Date();
-      // refresh every minute only
-      if(now.getTime() - dw_locktimer.lasttime.getTime() > 30*1000){ //FIXME decide on time
-          var params = 'call=lock&id='+encodeURIComponent(dw_locktimer.pageid);
-          if(dw_locktimer.draft){
-              var dwform = $('dw__editform');
-              // begin plugin modified code
-              if(encryptForSubmit()===false) { return(false); }
-              // end plugin modified code
-              params += '&prefix='+encodeURIComponent(dwform.elements.prefix.value);
-              params += '&wikitext='+encodeURIComponent(dwform.elements.wikitext.value);
-              params += '&suffix='+encodeURIComponent(dwform.elements.suffix.value);
-              params += '&date='+encodeURIComponent(dwform.elements.date.value);
-          }
-          dw_locktimer.sack.runAJAX(params);
-          dw_locktimer.lasttime = now;
-      }
-      // ---------------------------------- Previous Version ---------------
-      */
-  };
-}
+//function decryptEditSetup(msg) {
+  // ----> Moved to init.js
 
 function encryptForSubmit() {
    var wikitext=null, hiddentext=null;
@@ -134,27 +34,27 @@ function encryptForSubmit() {
    }
    encryptForSubmitInUse=true;
 
-   if(!(wikitext=document.getElementById('wiki__text'))) { 
+   if(!(wikitext=document.getElementById('wiki__text'))) {
       alert("failed to get wiki__text");
-      encryptForSubmitInUse=false; return(false); 
+      encryptForSubmitInUse=false; return(false);
    }
    if(!(hiddentext=document.getElementById('wiki__text_submit'))) {
       alert("failed to get wiki__text_submit");
-      encryptForSubmitInUse=false; return(false); 
+      encryptForSubmitInUse=false; return(false);
    }
    var tosubmit=encryptMixedText(wikitext.value);
    if(tosubmit===false) { encryptForSubmitInUse=false; return(false); }
    hiddentext.value=tosubmit;
-   encryptForSubmitInUse=false; return(true); 
+   encryptForSubmitInUse=false; return(true);
 }
 
 function decryptEditForm() {
   var elem=null, newtext="";
-  if(!(elem=document.getElementById('wiki__text'))) { 
+  if(!(elem=document.getElementById('wiki__text'))) {
     // alert("no form wiki__text\n");
-    return(true); 
+    return(true);
   }
-  if((newtext=decryptMixedText(elem.value))===false) { 
+  if((newtext=decryptMixedText(elem.value))===false) {
     alert("failed to decrypt wiki__text");
     return(false);
   }
@@ -209,7 +109,7 @@ function toggleCryptDiv(elemid,lock,ctext) {
    var ctStr="Decrypt Encrypted Text", ptStr="Hide Plaintext";
    elem=document.getElementById(elemid);
    atag=document.getElementById(elemid + "_atag");
-   if(elem===null || atag===null) { 
+   if(elem===null || atag===null) {
       alert("failed to find element id " + elemid);
    }
    if(atag.innerHTML==ptStr) {
@@ -244,7 +144,7 @@ function getEncryptionKeyForLock(lock) {
     crypt_keys[lock]=x;
     return(x);
   } else {
-    return(crypt_keys[lock]);  
+    return(crypt_keys[lock]);
   }
 }
 var debugval="";
@@ -309,13 +209,13 @@ function verifyDecrypt(ctext,lock,key) {
       var pstr="Try again: Enter passphrase for lock " + lock;
       while(null!==(key=prompt(pstr))) {
         ptext=decryptTextString(ctext,key);
-        if(ptext) { 
+        if(ptext) {
           break;
         }
       }
       if(key==null) { return(false); } // user hit cancel
     }
-    crypt_keys[lock]=key; 
+    crypt_keys[lock]=key;
   } else {
     var xkey=key;
     if(key===false) { xkey=crypt_keys[lock]; }
@@ -328,9 +228,9 @@ function verifyDecrypt(ctext,lock,key) {
 }
 function decryptBlock(data,key) {
   var tagend=0, ptend=0, lock=null, ptext;
-  if((tagend=data.indexOf(">"))==-1) { 
+  if((tagend=data.indexOf(">"))==-1) {
     crypt_debug("no > in " + data);
-    return(false); 
+    return(false);
   }
   if((ptend=data.lastIndexOf("</"))==-1) {
     crypt_debug(" no </ in " + data);
@@ -364,9 +264,9 @@ function getTagAttr(opentag,attr) {
 
 function encryptBlock(data,key) {
   var tagend=0, ptend=0, lock=null, ctext;
-  if((tagend=data.indexOf(">"))==-1) { 
+  if((tagend=data.indexOf(">"))==-1) {
     crypt_debug("no > in " + data);
-    return(false); 
+    return(false);
   }
   if((ptend=data.lastIndexOf("</"))==-1) {
     crypt_debug(" no </ in " + data);
@@ -383,14 +283,14 @@ function encryptBlock(data,key) {
     if(key===false) { return(false); }
   }
   if(!(ctext=encryptTextString(data.substring(tagend+1,ptend),key))) {
-    return(false); 
+    return(false);
   }
   return("<ENCRYPTED LOCK=" + lock + " " +
      "COLLAPSED=" + collapsed + ">" + ctext + "</ENCRYPTED>");
 }
 
 
-/* encrypt the string in text with ascii key in akey 
+/* encrypt the string in text with ascii key in akey
   modified from Encrypt_Text to expect ascii key and take input params
   and to return base64 encoded
 */
@@ -465,24 +365,24 @@ function decryptTextString(ctext,akey) {
   var header=result.slice(0,20);
   result=result.slice(20);
   var dl=(header[16]<<24)|(header[17]<<16)|(header[18]<<8)|header[19];
-  
+
   if((dl<0)||(dl>result.length)) {
    // alert("Message (length "+result.length+") != expected (" + dl + ")");
    dl=result.length;
   }
-  
+
   var i,plaintext="";
   md5_init();
-  
+
   for(i=0;i<dl;i++) {
     plaintext+=String.fromCharCode(result[i]);
     md5_update(result[i]);
   }
-  
+
   md5_finish();
 
   successful = true;
-  
+
   for(i=0;i<digestBits.length;i++) {
     if(digestBits[i]!=header[i]) {
       crypt_debug("Invalid decryption key.");
@@ -505,67 +405,67 @@ var blockSizeInBits = 128;
 
 
 // The number of rounds for the cipher, indexed by [Nk][Nb]
-var roundsArray = [ undefined, undefined, undefined, undefined,[ undefined, undefined, undefined, undefined,10, undefined, 12, undefined, 14], undefined, 
-                        [ undefined, undefined, undefined, undefined, 12, undefined, 12, undefined, 14], undefined, 
+var roundsArray = [ undefined, undefined, undefined, undefined,[ undefined, undefined, undefined, undefined,10, undefined, 12, undefined, 14], undefined,
+                        [ undefined, undefined, undefined, undefined, 12, undefined, 12, undefined, 14], undefined,
                         [ undefined, undefined, undefined, undefined, 14, undefined, 14, undefined, 14] ];
 
 // The number of bytes to shift by in shiftRow, indexed by [Nb][row]
 var shiftOffsets = [ undefined, undefined, undefined, undefined,[ undefined,1, 2, 3], undefined,[ undefined,1, 2, 3], undefined,[ undefined,1, 3, 4] ];
 
 // The round constants used in subkey expansion
-var Rcon = [ 
-0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 
-0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 
-0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 
-0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 
+var Rcon = [
+0x01, 0x02, 0x04, 0x08, 0x10, 0x20,
+0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8,
+0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc,
+0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4,
 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91 ];
 
 // Precomputed lookup table for the SBox
 var SBox = [
- 99, 124, 119, 123, 242, 107, 111, 197,  48,   1, 103,  43, 254, 215, 171, 
-118, 202, 130, 201, 125, 250,  89,  71, 240, 173, 212, 162, 175, 156, 164, 
-114, 192, 183, 253, 147,  38,  54,  63, 247, 204,  52, 165, 229, 241, 113, 
-216,  49,  21,   4, 199,  35, 195,  24, 150,   5, 154,   7,  18, 128, 226, 
-235,  39, 178, 117,   9, 131,  44,  26,  27, 110,  90, 160,  82,  59, 214, 
-179,  41, 227,  47, 132,  83, 209,   0, 237,  32, 252, 177,  91, 106, 203, 
-190,  57,  74,  76,  88, 207, 208, 239, 170, 251,  67,  77,  51, 133,  69, 
-249,   2, 127,  80,  60, 159, 168,  81, 163,  64, 143, 146, 157,  56, 245, 
-188, 182, 218,  33,  16, 255, 243, 210, 205,  12,  19, 236,  95, 151,  68,  
-23,  196, 167, 126,  61, 100,  93,  25, 115,  96, 129,  79, 220,  34,  42, 
+ 99, 124, 119, 123, 242, 107, 111, 197,  48,   1, 103,  43, 254, 215, 171,
+118, 202, 130, 201, 125, 250,  89,  71, 240, 173, 212, 162, 175, 156, 164,
+114, 192, 183, 253, 147,  38,  54,  63, 247, 204,  52, 165, 229, 241, 113,
+216,  49,  21,   4, 199,  35, 195,  24, 150,   5, 154,   7,  18, 128, 226,
+235,  39, 178, 117,   9, 131,  44,  26,  27, 110,  90, 160,  82,  59, 214,
+179,  41, 227,  47, 132,  83, 209,   0, 237,  32, 252, 177,  91, 106, 203,
+190,  57,  74,  76,  88, 207, 208, 239, 170, 251,  67,  77,  51, 133,  69,
+249,   2, 127,  80,  60, 159, 168,  81, 163,  64, 143, 146, 157,  56, 245,
+188, 182, 218,  33,  16, 255, 243, 210, 205,  12,  19, 236,  95, 151,  68,
+23,  196, 167, 126,  61, 100,  93,  25, 115,  96, 129,  79, 220,  34,  42,
 144, 136,  70, 238, 184,  20, 222,  94,  11, 219, 224,  50,  58,  10,  73,
-  6,  36,  92, 194, 211, 172,  98, 145, 149, 228, 121, 231, 200,  55, 109, 
-141, 213,  78, 169, 108,  86, 244, 234, 101, 122, 174,   8, 186, 120,  37,  
- 46,  28, 166, 180, 198, 232, 221, 116,  31,  75, 189, 139, 138, 112,  62, 
+  6,  36,  92, 194, 211, 172,  98, 145, 149, 228, 121, 231, 200,  55, 109,
+141, 213,  78, 169, 108,  86, 244, 234, 101, 122, 174,   8, 186, 120,  37,
+ 46,  28, 166, 180, 198, 232, 221, 116,  31,  75, 189, 139, 138, 112,  62,
 181, 102,  72,   3, 246,  14,  97,  53,  87, 185, 134, 193,  29, 158, 225,
 248, 152,  17, 105, 217, 142, 148, 155,  30, 135, 233, 206,  85,  40, 223,
-140, 161, 137,  13, 191, 230,  66, 104,  65, 153,  45,  15, 176,  84, 187,  
+140, 161, 137,  13, 191, 230,  66, 104,  65, 153,  45,  15, 176,  84, 187,
  22 ];
 
 // Precomputed lookup table for the inverse SBox
 var SBoxInverse = [
- 82,   9, 106, 213,  48,  54, 165,  56, 191,  64, 163, 158, 129, 243, 215, 
-251, 124, 227,  57, 130, 155,  47, 255, 135,  52, 142,  67,  68, 196, 222, 
-233, 203,  84, 123, 148,  50, 166, 194,  35,  61, 238,  76, 149,  11,  66, 
-250, 195,  78,   8,  46, 161, 102,  40, 217,  36, 178, 118,  91, 162,  73, 
-109, 139, 209,  37, 114, 248, 246, 100, 134, 104, 152,  22, 212, 164,  92, 
-204,  93, 101, 182, 146, 108, 112,  72,  80, 253, 237, 185, 218,  94,  21,  
- 70,  87, 167, 141, 157, 132, 144, 216, 171,   0, 140, 188, 211,  10, 247, 
-228,  88,   5, 184, 179,  69,   6, 208,  44,  30, 143, 202,  63,  15,   2, 
-193, 175, 189,   3,   1,  19, 138, 107,  58, 145,  17,  65,  79, 103, 220, 
+ 82,   9, 106, 213,  48,  54, 165,  56, 191,  64, 163, 158, 129, 243, 215,
+251, 124, 227,  57, 130, 155,  47, 255, 135,  52, 142,  67,  68, 196, 222,
+233, 203,  84, 123, 148,  50, 166, 194,  35,  61, 238,  76, 149,  11,  66,
+250, 195,  78,   8,  46, 161, 102,  40, 217,  36, 178, 118,  91, 162,  73,
+109, 139, 209,  37, 114, 248, 246, 100, 134, 104, 152,  22, 212, 164,  92,
+204,  93, 101, 182, 146, 108, 112,  72,  80, 253, 237, 185, 218,  94,  21,
+ 70,  87, 167, 141, 157, 132, 144, 216, 171,   0, 140, 188, 211,  10, 247,
+228,  88,   5, 184, 179,  69,   6, 208,  44,  30, 143, 202,  63,  15,   2,
+193, 175, 189,   3,   1,  19, 138, 107,  58, 145,  17,  65,  79, 103, 220,
 234, 151, 242, 207, 206, 240, 180, 230, 115, 150, 172, 116,  34, 231, 173,
- 53, 133, 226, 249,  55, 232,  28, 117, 223, 110,  71, 241,  26, 113,  29, 
- 41, 197, 137, 111, 183,  98,  14, 170,  24, 190,  27, 252,  86,  62,  75, 
+ 53, 133, 226, 249,  55, 232,  28, 117, 223, 110,  71, 241,  26, 113,  29,
+ 41, 197, 137, 111, 183,  98,  14, 170,  24, 190,  27, 252,  86,  62,  75,
 198, 210, 121,  32, 154, 219, 192, 254, 120, 205,  90, 244,  31, 221, 168,
  51, 136,   7, 199,  49, 177,  18,  16,  89,  39, 128, 236,  95,  96,  81,
 127, 169,  25, 181,  74,  13,  45, 229, 122, 159, 147, 201, 156, 239, 160,
-224,  59,  77, 174,  42, 245, 176, 200, 235, 187,  60, 131,  83, 153,  97, 
+224,  59,  77, 174,  42, 245, 176, 200, 235, 187,  60, 131,  83, 153,  97,
  23,  43,   4, 126, 186, 119, 214,  38, 225, 105,  20,  99,  85,  33,  12,
 125 ];
 
 // This method circularly shifts the array left by the number of elements
-// given in its parameter. It returns the resulting array and is used for 
-// the ShiftRow step. Note that shift() and push() could be used for a more 
-// elegant solution, but they require IE5.5+, so I chose to do it manually. 
+// given in its parameter. It returns the resulting array and is used for
+// the ShiftRow step. Note that shift() and push() could be used for a more
+// elegant solution, but they require IE5.5+, so I chose to do it manually.
 
 function cyclicShiftLeft(theArray, positions) {
   var temp = theArray.slice(0, positions);
@@ -574,7 +474,7 @@ function cyclicShiftLeft(theArray, positions) {
 }
 
 // Cipher parameters ... do not change these
-var Nk = keySizeInBits / 32;                   
+var Nk = keySizeInBits / 32;
 var Nb = blockSizeInBits / 32;
 var Nr = roundsArray[Nk][Nb];
 
@@ -592,7 +492,7 @@ function xtime(poly) {
 
 function mult_GF256(x, y) {
   var bit, result = 0;
-  
+
   for (bit = 1; bit < 256; bit *= 2, y = xtime(y)) {
     if (x & bit) { result ^= y; }
   }
@@ -601,7 +501,7 @@ function mult_GF256(x, y) {
 
 // Performs the substitution step of the cipher.  State is the 2d array of
 // state information (see spec) and direction is string indicating whether
-// we are performing the forward substitution ("encrypt") or inverse 
+// we are performing the forward substitution ("encrypt") or inverse
 // substitution (anything else)
 
 function byteSub(state, direction) {
@@ -628,7 +528,7 @@ function shiftRow(state, direction) {
 
 // Performs the column mixing step of the cipher. Most of these steps can
 // be combined into table lookups on 32bit values (at least for encryption)
-// to greatly increase the speed. 
+// to greatly increase the speed.
 
 function mixColumn(state, direction) {
   var b = [];                            // Result of matrix multiplications
@@ -637,11 +537,11 @@ function mixColumn(state, direction) {
     for (i = 0; i < 4; i++) {        // and for each row in the column...
       if (direction == "encrypt") {
         b[i] = mult_GF256(state[i][j], 2) ^          // perform mixing
-               mult_GF256(state[(i+1)%4][j], 3) ^ 
-               state[(i+2)%4][j] ^ 
+               mult_GF256(state[(i+1)%4][j], 3) ^
+               state[(i+2)%4][j] ^
                state[(i+3)%4][j];
       } else {
-        b[i] = mult_GF256(state[i][j], 0xE) ^ 
+        b[i] = mult_GF256(state[i][j], 0xE) ^
                mult_GF256(state[(i+1)%4][j], 0xB) ^
                mult_GF256(state[(i+2)%4][j], 0xD) ^
                mult_GF256(state[(i+3)%4][j], 9);
@@ -666,7 +566,7 @@ function addRoundKey(state, roundKey) {
 
 // This function creates the expanded key from the input (128/192/256-bit)
 // key. The parameter key is an array of bytes holding the value of the key.
-// The returned value is an array whose elements are the 32-bit words that 
+// The returned value is an array whose elements are the 32-bit words that
 // make up the expanded key.
 
 function keyExpansion(key) {
@@ -674,12 +574,12 @@ function keyExpansion(key) {
   var temp;
 
   // in case the key size or parameters were changed...
-  Nk = keySizeInBits / 32;                   
+  Nk = keySizeInBits / 32;
   Nb = blockSizeInBits / 32;
   Nr = roundsArray[Nk][Nb];
 
   for (var j=0; j < Nk; j++) {   // Fill in input key first
-    expandedKey[j] = 
+    expandedKey[j] =
       (key[4*j]) | (key[4*j+1]<<8) | (key[4*j+2]<<16) | (key[4*j+3]<<24);
   }
 
@@ -703,7 +603,7 @@ function keyExpansion(key) {
   return expandedKey;
 }
 
-// Rijndael's round functions... 
+// Rijndael's round functions...
 
 function jcRound(state, roundKey) {
   byteSub(state, "encrypt");
@@ -728,7 +628,7 @@ function finalRound(state, roundKey) {
 function inverseFinalRound(state, roundKey){
   addRoundKey(state, roundKey);
   shiftRow(state, "decrypt");
-  byteSub(state, "decrypt");  
+  byteSub(state, "decrypt");
 }
 
 // encrypt is the basic encryption function. It takes parameters
@@ -737,14 +637,14 @@ function inverseFinalRound(state, roundKey){
 // keyExpansion(). The ciphertext block is returned as an array of bytes.
 
 function encrypt(block, expandedKey) {
-  var i;  
+  var i;
   if (!block || block.length*8 != blockSizeInBits) { return; }
   if (!expandedKey) { return; }
 
   block = packBytes(block);
   addRoundKey(block, expandedKey);
   for (i=1; i<Nr; i++) { jcRound(block, expandedKey.slice(Nb*i, Nb*(i+1))); }
-  finalRound(block, expandedKey.slice(Nb*Nr)); 
+  finalRound(block, expandedKey.slice(Nb*Nr));
   return unpackBytes(block);
 }
 
@@ -759,7 +659,7 @@ function decrypt(block, expandedKey) {
   if (!expandedKey) { return; }
 
   block = packBytes(block);
-  inverseFinalRound(block, expandedKey.slice(Nb*Nr)); 
+  inverseFinalRound(block, expandedKey.slice(Nb*Nr));
   for (i = Nr - 1; i>0; i--) {
     inverseRound(block, expandedKey.slice(Nb*i, Nb*(i+1)));
   }
@@ -773,22 +673,22 @@ function decrypt(block, expandedKey) {
 // The resulting string is returned. Note that this function SKIPS zero bytes
 // under the assumption that they are padding added in formatPlaintext().
 // Obviously, do not invoke this method on raw data that can contain zero
-// bytes. It is really only appropriate for printable ASCII/Latin-1 
+// bytes. It is really only appropriate for printable ASCII/Latin-1
 // values. Roll your own function for more robust functionality :)
 
 function byteArrayToString(byteArray) {
   var result = "";
   for(var i=0; i<byteArray.length; i++)
-    if (byteArray[i] != 0) 
+    if (byteArray[i] != 0)
       result += String.fromCharCode(byteArray[i]);
   return result;
 }
 */
 
 // This function takes an array of bytes (byteArray) and converts them
-// to a hexadecimal string. Array element 0 is found at the beginning of 
+// to a hexadecimal string. Array element 0 is found at the beginning of
 // the resulting string, high nibble first. Consecutive elements follow
-// similarly, for example [16, 255] --> "10ff". The function returns a 
+// similarly, for example [16, 255] --> "10ff". The function returns a
 // string.
 
 function byteArrayToHex(byteArray) {
@@ -801,10 +701,10 @@ function byteArrayToHex(byteArray) {
   return result;
 }
 
-// This function converts a string containing hexadecimal digits to an 
+// This function converts a string containing hexadecimal digits to an
 // array of bytes. The resulting byte array is filled in the order the
 // values occur in the string, for example "10FF" --> [16, 255]. This
-// function returns an array. 
+// function returns an array.
 
 function hexToByteArray(hexString) {
   var byteArray = [];
@@ -835,12 +735,12 @@ function packBytes(octets) {
     state[2][j/4] = octets[j+2];
     state[3][j/4] = octets[j+3];
   }
-  return state;  
+  return state;
 }
 
 // This function unpacks an array of bytes from the four row format preferred
 // by Rijndael into a single 1d array of bytes. It assumes the input "packed"
-// is a packed array. Bytes are filled in according to the Rijndael spec. 
+// is a packed array. Bytes are filled in according to the Rijndael spec.
 // This function returns a 1d array of bytes.
 
 function unpackBytes(packed) {
@@ -855,11 +755,11 @@ function unpackBytes(packed) {
 }
 
 // This function takes a prospective plaintext (string or array of bytes)
-// and pads it with pseudorandom bytes if its length is not a multiple of the block 
+// and pads it with pseudorandom bytes if its length is not a multiple of the block
 // size. If plaintext is a string, it is converted to an array of bytes
-// in the process. The type checking can be made much nicer using the 
-// instanceof operator, but this operator is not available until IE5.0 so I 
-// chose to use the heuristic below. 
+// in the process. The type checking can be made much nicer using the
+// instanceof operator, but this operator is not available until IE5.0 so I
+// chose to use the heuristic below.
 
 function formatPlaintext(plaintext) {
   var bpb = blockSizeInBits / 8;               // bytes per block
@@ -874,13 +774,13 @@ function formatPlaintext(plaintext) {
     for (i=0; i<plaintext.length; i++) {
       plaintext[i] = plaintext[i].charCodeAt(0) & 0xFF;
     }
-  } 
+  }
 
   i = plaintext.length % bpb;
   if (i > 0) {
     plaintext = plaintext.concat(getRandomBytes(bpb - i));
   }
-  
+
   return plaintext;
 }
 
@@ -888,7 +788,7 @@ function formatPlaintext(plaintext) {
 
 function getRandomBytes(howMany) {
   var i, bytes = [];
-    
+
   for (i = 0; i < howMany; i++) {
     bytes[i] = prng.nextInt(255);
   }
@@ -896,15 +796,15 @@ function getRandomBytes(howMany) {
 }
 
 // rijndaelEncrypt(plaintext, key, mode)
-// Encrypts the plaintext using the given key and in the given mode. 
-// The parameter "plaintext" can either be a string or an array of bytes. 
-// The parameter "key" must be an array of key bytes. If you have a hex 
-// string representing the key, invoke hexToByteArray() on it to convert it 
+// Encrypts the plaintext using the given key and in the given mode.
+// The parameter "plaintext" can either be a string or an array of bytes.
+// The parameter "key" must be an array of key bytes. If you have a hex
+// string representing the key, invoke hexToByteArray() on it to convert it
 // to an array of bytes. The third parameter "mode" is a string indicating
 // the encryption mode to use, either "ECB" or "CBC". If the parameter is
 // omitted, ECB is assumed.
-// 
-// An array of bytes representing the cihpertext is returned. To convert 
+//
+// An array of bytes representing the cihpertext is returned. To convert
 // this array to hex, invoke byteArrayToHex() on it.
 
 function rijndaelEncrypt(plaintext, key, mode) {
@@ -922,11 +822,11 @@ function rijndaelEncrypt(plaintext, key, mode) {
     ct = [];
   }
 
-  // convert plaintext to byte array and pad with zeros if necessary. 
+  // convert plaintext to byte array and pad with zeros if necessary.
   plaintext = formatPlaintext(plaintext);
 
   expandedKey = keyExpansion(key);
-  
+
   for (var block = 0; block < plaintext.length / bpb; block++) {
     aBlock = plaintext.slice(block * bpb, (block + 1) * bpb);
     if (mode == "CBC") {
@@ -941,14 +841,14 @@ function rijndaelEncrypt(plaintext, key, mode) {
 }
 
 // rijndaelDecrypt(ciphertext, key, mode)
-// Decrypts the using the given key and mode. The parameter "ciphertext" 
-// must be an array of bytes. The parameter "key" must be an array of key 
-// bytes. If you have a hex string representing the ciphertext or key, 
+// Decrypts the using the given key and mode. The parameter "ciphertext"
+// must be an array of bytes. The parameter "key" must be an array of key
+// bytes. If you have a hex string representing the ciphertext or key,
 // invoke hexToByteArray() on it to convert it to an array of bytes. The
 // parameter "mode" is a string, either "CBC" or "ECB".
-// 
-// An array of bytes representing the plaintext is returned. To convert 
-// this array to a hex string, invoke byteArrayToHex() on it. To convert it 
+//
+// An array of bytes representing the plaintext is returned. To convert
+// this array to a hex string, invoke byteArrayToHex() on it. To convert it
 // to a string of characters, you can use byteArrayToString().
 
 function rijndaelDecrypt(ciphertext, key, mode) {
@@ -963,10 +863,10 @@ function rijndaelDecrypt(ciphertext, key, mode) {
   if (!mode) { mode = "ECB"; } // assume ECB if mode omitted
 
   expandedKey = keyExpansion(key);
- 
-  // work backwards to accomodate CBC mode 
+
+  // work backwards to accomodate CBC mode
   for (block=(ciphertext.length / bpb)-1; block>0; block--) {
-    aBlock = 
+    aBlock =
      decrypt(ciphertext.slice(block*bpb,(block+1)*bpb), expandedKey);
     if (mode == "CBC") {
       for (var i=0; i<bpb; i++) {
@@ -985,7 +885,7 @@ function rijndaelDecrypt(ciphertext, key, mode) {
   return pt;
 }
 
-// END: javascrypt/aes.js 
+// END: javascrypt/aes.js
 // BEGIN: javascrypt/entropy.js
 
 //  Entropy collection utilities
@@ -993,44 +893,44 @@ function rijndaelDecrypt(ciphertext, key, mode) {
 /* Start by declaring static storage and initialise
    the entropy vector from the time we come through
    here. */
-  
+
 var entropyData = []; // Collected entropy data
 var edlen = 0;        // Keyboard array data length
- 
+
 addEntropyTime();     // Start entropy collection with page load time
 ce();                 // Roll milliseconds into initial entropy
 
 //  Add a byte to the entropy vector
-    
+
 function addEntropyByte(b) {
   entropyData[edlen++] = b;
 }
-            
+
 /*  Capture entropy.  When the user presses a key or performs
   various other events for which we can request
   notification, add the time in 255ths of a second to the
   entropyData array.  The name of the function is short
   so it doesn't bloat the form object declarations in
   which it appears in various "onXXX" events.  */
-    
+
 function ce() {
   addEntropyByte(Math.floor((((new Date()).getMilliseconds()) * 255) / 999));
 }
-    
+
 //  Add a 32 bit quantity to the entropy vector
-    
+
 function addEntropy32(w) {
   var i;
-  
+
   for (i = 0; i < 4; i++) {
     addEntropyByte(w & 0xFF);
     w >>= 8;
   }
 }
-    
+
 /*  Add the current time and date (milliseconds since the epoch,
     truncated to 32 bits) to the entropy vector.  */
-  
+
 function addEntropyTime() {
   addEntropy32((new Date()).getTime());
 }
@@ -1039,10 +939,10 @@ function addEntropyTime() {
   obtained from mouse motion, after which mouse motion
   will be ignored.  Note that you can re-enable mouse
   motion collection at any time if not already underway.  */
-  
+
 var mouseMotionCollect = 0;
 var oldMoveHandler;    // For saving and restoring mouse move handler in IE4
-  
+
 function mouseMotionEntropy(maxsamp) {
   if (mouseMotionCollect <= 0) {
     mouseMotionCollect = maxsamp;
@@ -1063,16 +963,16 @@ function mouseMotionEntropy(maxsamp) {
     //dump("Mouse enable", mouseMotionCollect);
   }
 }
-    
+
 /*  Collect entropy from mouse motion events.  Note that
   this is craftily coded to work with either DOM2 or Internet
   Explorer style events.  Note that we don't use every successive
   mouse movement event.  Instead, we XOR the three bytes collected
   from the mouse and use that to determine how many subsequent
   mouse movements we ignore before capturing the next one.  */
-  
+
 var mouseEntropyTime = 0;      // Delay counter for mouse entropy collection
-  
+
 function mouseMoveEntropy(e) {
   if (!e) {
     e = window.event;      // Internet Explorer event model
@@ -1099,15 +999,15 @@ function mouseMoveEntropy(e) {
     }
   }
 }
-    
+
 /*  Compute a 32 byte key value from the entropy vector.
   We compute the value by taking the MD5 sum of the even
   and odd bytes respectively of the entropy vector, then
   concatenating the two MD5 sums.  */
-    
+
 function keyFromEntropy() {
   var i, k = [];
-  
+
   if (edlen === 0) {
     alert("Blooie!  Entropy vector void at call to keyFromEntropy.");
   }
@@ -1130,7 +1030,7 @@ function keyFromEntropy() {
   for (i = 0; i < 16; i++) {
     k[i + 16] = digestBits[i];
   }
-  
+
   //dump("keyFromEntropy", byteArrayToHex(k));
   return k;
 }
@@ -1146,43 +1046,43 @@ function AESprng(seed) {
   this.key = seed;
   this.itext = hexToByteArray("9F489613248148F9C27945C6AE62EECA3E3367BB14064E4E6DC67A9F28AB3BD1");
   this.nbytes = 0;          // Bytes left in buffer
-  
+
   this.next = AESprng_next;
   this.nextbits = AESprng_nextbits;
   this.nextInt = AESprng_nextInt;
   this.round = AESprng_round;
-  
+
   /*  Encrypt the initial text with the seed key
       three times, feeding the output of the encryption
       back into the key for the next round.  */
-  
+
   bsb = blockSizeInBits;
-  blockSizeInBits = 256;    
+  blockSizeInBits = 256;
   var i, ct;
   for (i = 0; i < 3; i++) {
     this.key = rijndaelEncrypt(this.itext, this.key, "ECB");
   }
-  
+
   /*  Now make between one and four additional
       key-feedback rounds, with the number determined
       by bits from the result of the first three
       rounds.  */
-  
-  var n = 1 + (this.key[3] & 2) + (this.key[9] & 1);    
+
+  var n = 1 + (this.key[3] & 2) + (this.key[9] & 1);
   for (i = 0; i < n; i++) {
     this.key = rijndaelEncrypt(this.itext, this.key, "ECB");
   }
   blockSizeInBits = bsb;
 }
-    
+
 function AESprng_round() {
   bsb = blockSizeInBits;
-  blockSizeInBits = 256;    
+  blockSizeInBits = 256;
   this.key = rijndaelEncrypt(this.itext, this.key, "ECB");
   this.nbytes = 32;
   blockSizeInBits = bsb;
 }
-    
+
 //  Return next byte from the generator
 function AESprng_next() {
   if (this.nbytes <= 0) {
@@ -1190,7 +1090,7 @@ function AESprng_next() {
   }
   return(this.key[--this.nbytes]);
 }
-    
+
 //  Return n bit integer value (up to maximum integer size)
 function AESprng_nextbits(n) {
   var i, w = 0, nbytes = Math.floor((n + 7) / 8);
@@ -1204,16 +1104,16 @@ function AESprng_nextbits(n) {
 //  Return integer between 0 and n inclusive
 function AESprng_nextInt(n) {
   var p = 1, nb = 0;
-  
+
   //  Determine smallest p,  2^p > n
   //  nb = log_2 p
-  
+
   while (n >= p) {
     p <<= 1;
     nb++;
   }
   p--;
-  
+
   /*  Generate values from 0 through n by first generating
       values v from 0 to (2^p)-1, then discarding any results v > n.
       For the rationale behind this (and why taking
@@ -1223,7 +1123,7 @@ function AESprng_nextInt(n) {
 
   while (true) {
     var v = this.nextbits(nb) & p;
-      
+
     if (v <= n) {
       return v;
     }
@@ -1247,7 +1147,7 @@ function AESprng_nextInt(n) {
 */
 
 // Schrage's modular multiplication algorithm
-function uGen(old, a, q, r, m) {      
+function uGen(old, a, q, r, m) {
   var t;
 
   t = Math.floor(old / q);
@@ -1361,7 +1261,7 @@ function shr(a, b) {
 function shl1(a) {
     a = a % 0x80000000;
     if (a & 0x40000000 == 0x40000000) {
-        a -= 0x40000000;  
+        a -= 0x40000000;
         a *= 2;
         a += 0x80000000;
     } else {
@@ -1394,7 +1294,7 @@ function and(a, b) {
         if (t2 >= 0) {
             return (a & t2);
         } else {
-            return (a & b);  
+            return (a & b);
         }
     }
 }
@@ -1414,7 +1314,7 @@ function or(a, b) {
         if (t2 >= 0) {
             return ((a | t2) + 0x80000000);
         } else {
-            return (a | b);  
+            return (a | b);
         }
     }
 }
@@ -1434,7 +1334,7 @@ function xor(a, b) {
     if (t2 >= 0) {
       return ((a ^ t2) + 0x80000000);
     } else {
-      return (a ^ b);  
+      return (a ^ b);
     }
   }
 }
@@ -1449,7 +1349,7 @@ function not(a) {
 var state = [];
 var count = [];
     count[0] = 0;
-    count[1] = 0;                     
+    count[1] = 0;
 var buffer = [];
 var transformBuffer = [];
 var digestBits = [];
@@ -1519,15 +1419,15 @@ function jcII(a, b, c, d, x, s, ac) {
   return a;
 }
 
-function transform(buf, offset) { 
-  var a = 0, b = 0, c = 0, d = 0; 
+function transform(buf, offset) {
+  var a = 0, b = 0, c = 0, d = 0;
   var x = transformBuffer;
-  
+
   a = state[0];
   b = state[1];
   c = state[2];
   d = state[3];
-  
+
   for (i = 0; i < 16; i++) {
     x[i] = and(buf[i * 4 + offset], 0xFF);
     for (j = 1; j < 4; j++) {
@@ -1625,9 +1525,9 @@ function md5_init() {
   }
 }
 
-function md5_update(b) { 
+function md5_update(b) {
   var index, i;
-    
+
   index = and(shr(count[0],3) , 0x3F);
   if (count[0] < 0xFFFFFFFF - 7) {
     count[0] += 8;
@@ -1644,7 +1544,7 @@ function md5_update(b) {
 
 function md5_finish() {
   var bits = [];
-  var padding; 
+  var padding;
   var i = 0, index = 0, padLen = 0;
 
   for (i = 0; i < 4; i++) {
@@ -1668,7 +1568,7 @@ function md5_finish() {
     for (j = 0; j < 4; j++) {
       digestBits[i * 4 + j] = and(shr(state[i], (j * 8)) , 0xFF);
     }
-  } 
+  }
 }
 
 /* End of the MD5 algorithm */
@@ -1678,9 +1578,9 @@ function md5_finish() {
 //  Varieties of ASCII armour for binary data
 
 var maxLineLength = 64; // Maximum line length for armoured text
-    
+
 /* Hexadecimal Armour
-    
+
    A message is encoded in Hexadecimal armour by expressing its
    bytes as a hexadecimal string which is prefixed by a sentinel
    of "?HX?" and suffixed by "?H", then broken into lines no
@@ -1689,11 +1589,11 @@ var maxLineLength = 64; // Maximum line length for armoured text
    either upper or lower case letters are accepted when decoding
    a message.  The hexadecimal to byte array interconversion
    routines in aes.js do most of the heavy lifting here.  */
-    
+
 var hexSentinel = "?HX?", hexEndSentinel = "?H";
-    
+
 //  Encode byte array in hexadecimal armour
-    
+
 function armour_hex(b) {
   var h = hexSentinel + byteArrayToHex(b) + hexEndSentinel;
   var t = "";
@@ -1706,14 +1606,14 @@ function armour_hex(b) {
   t += h + "\n";
   return t;
 }
-    
+
 /* Decode string in hexadecimal armour to byte array.  If the
    string supplied contains a start and/or end sentinel,
    only characters within the sentinels will be decoded.
    Non-hexadecimal digits are silently ignored, which
    automatically handles line breaks.  We might want to
    diagnose invalid characters as opposed to ignoring them.  */
-    
+
 function disarm_hex(s) {
   var hexDigits = "0123456789abcdefABCDEF";
   var hs = "", i;
@@ -1752,11 +1652,11 @@ function disarm_hex(s) {
   does not fill an even number of five letter groups, the last
   group is padded to five letters with "Z" characters, which are
   ignored when decoding.  */
-    
+
 var acgcl, acgt, acgg;
-    
+
 // Output next codegroup, flushing current line if it's full
-    
+
 function armour_cg_outgroup() {
   if (acgcl.length > maxLineLength) {
     acgt += acgcl + "\n";
@@ -1768,19 +1668,19 @@ function armour_cg_outgroup() {
   acgcl += acgg;
   acgg = "";
 }
-    
+
 /* Add a letter to the current codegroup, emitting it when
    it reaches five letters.  */
-    
+
 function armour_cg_outletter(l) {
   if (acgg.length >= 5) {
     armour_cg_outgroup();
   }
   acgg += l;
 }
-    
+
 var codegroupSentinel = "ZZZZZ";
-    
+
 function armour_codegroup(b) {
   var charBase = ("A").charCodeAt(0);
 
@@ -1815,13 +1715,13 @@ function armour_codegroup(b) {
 
   return acgt;
 }
-    
+
 var dcgs, dcgi;
-    
+
   /*  Obtain next "significant" character from message.  Characters
     other than letters are silently ignored; both lower and upper
     case letters are accepted.  */
-    
+
 function disarm_cg_insig() {
   while (dcgi < dcgs.length) {
     var c = dcgs.charAt(dcgi++).toUpperCase();
@@ -1832,9 +1732,9 @@ function disarm_cg_insig() {
   }
   return "";
 }
-    
+
 // Decode a message in codegroup armour
-    
+
 function disarm_codegroup(s) {
   var b = [];
   var nz = 0, ba, bal = 0, c;
@@ -1846,7 +1746,7 @@ function disarm_codegroup(s) {
 
   while (nz < 5) {
     c = disarm_cg_insig();
-      
+
     if (c == "Z") {
       nz++;
     } else if (c === "") {
@@ -1856,21 +1756,21 @@ function disarm_codegroup(s) {
       nz = 0;
     }
   }
-  
+
   if (nz === 0) {
       alert("No codegroup starting symbol found in message.");
       return "";
   }
-  
+
   /*  Decode letter pairs from successive groups
       and assemble into bytes.  */
-  
-  var charBase = ("A").charCodeAt(0);    
+
+  var charBase = ("A").charCodeAt(0);
   var cgrng = new LEcuyer(0xbadf00d);
   for (nz = 0; nz < 2; ) {
     c = disarm_cg_insig();
     //dump("c", c);
-   
+
     if ((c == "Y") || (c === "")) {
       break;
     } else if (c != "Z") {
@@ -1913,12 +1813,12 @@ function disarm_codegroup(s) {
       alert("Codegroup end group missing." + kbo);
     }
   }
-  
+
   return b;
 }
-    
+
     /*  Base64 Armour
-    
+
   Base64 armour encodes a byte array as described in RFC 1341.  Sequences
   of three bytes are encoded into groups of four characters from a set
   of 64 consisting of the upper and lower case letters, decimal digits,
@@ -1929,11 +1829,11 @@ function disarm_codegroup(s) {
   of these sentinels are present, text outside them is ignored.  You can
   suppress the generation of sentinels in armour by setting base64addsent
   false before calling armour_base64.  */
-    
-    
+
+
 var base64code = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
   base64sent = "?b64", base64esent = "?64b", base64addsent = true;
-    
+
 function armour_base64(b) {
   var b64t = "";
   var b64l = base64addsent ? base64sent : "";
@@ -1949,7 +1849,7 @@ function armour_base64(b) {
     b64l += base64code.charAt(((b[i + 1] & 0xF) << 2) | (b[i + 2] >> 6));
     b64l += base64code.charAt(b[i + 2] & 0x3F);
   }
-  
+
   //dump("b.length", b.length);  dump("i", i); dump("(b.length - i)", (b.length - i));
   if ((b.length - i) == 1) {
     b64l += base64code.charAt(b[i] >> 2);
@@ -1972,19 +1872,19 @@ function armour_base64(b) {
   b64t += b64l + "\n";
   return b64t;
 }
-    
+
 function disarm_base64(s) {
   var b = [];
   var i = 0, j, c, shortgroup = 0, n = 0;
   var d = [];
-  
+
   if ((j = s.indexOf(base64sent)) >= 0) {
     s = s.substring(j + base64sent.length, s.length);
   }
   if ((j = s.indexOf(base64esent)) >= 0) {
     s = s.substring(0, j);
   }
-  
+
   /*  Ignore any non-base64 characters before the encoded
       data stream and skip the type sentinel if present.  */
 
@@ -1994,11 +1894,11 @@ function disarm_base64(s) {
     }
     i++;
   }
-  
+
   /*  Decode the base64 data stream.  The decoder is
       terminated by the end of the input string or
       the occurrence of the explicit end sentinel.  */
-  
+
   while (i < s.length) {
     for (j = 0; j < 4; ) {
       if (i >= s.length) {
@@ -2026,7 +1926,7 @@ function disarm_base64(s) {
       }
       i++;
     }
-    //dump("d0", d[0]); dump("d1", d[1]); dump("d2", d[2]); dump("d3", d[3]); 
+    //dump("d0", d[0]); dump("d1", d[1]); dump("d2", d[2]); dump("d3", d[3]);
     //dump("shortgroup", shortgroup);
     //dump("n", n);
     if (j == 4) {
@@ -2047,7 +1947,7 @@ function disarm_base64(s) {
 
 /*  Encoding and decoding of Unicode character strings as
     UTF-8 byte streams.  */
-  
+
 //  UNICODE_TO_UTF8  --  Encode Unicode argument string as UTF-8 return value
 
 function unicode_to_utf8(s) {
@@ -2115,10 +2015,10 @@ function utf8_to_unicode(utf8) {
        know what somebody is going to paste into a
        text box, so this choice keeps Windows-encoded
        strings from bloating to UTF-8 encoding.  */
-       
+
 function encode_utf8(s) {
   var i, necessary = false;
-  
+
   for (i = 0; i < s.length; i++) {
     if ((s.charCodeAt(i) == 0x9D) || (s.charCodeAt(i) > 0xFF)) {
       necessary = true;
@@ -2130,7 +2030,7 @@ function encode_utf8(s) {
   }
   return String.fromCharCode(0x9D) + unicode_to_utf8(s);
 }
-    
+
 /*  DECODE_UTF8  --  Decode a string encoded with encode_utf8
     above.  If the string begins with the
     sentinel character 0x9D (OPERATING
@@ -2139,7 +2039,7 @@ function encode_utf8(s) {
     the string is output unchanged, as
     it's guaranteed to contain only 8 bit
     characters excluding 0x9D.  */
-       
+
 function decode_utf8(s) {
   if ((s.length > 0) && (s.charCodeAt(0) == 0x9D)) {
     return utf8_to_unicode(s.substring(1));
