@@ -17,7 +17,7 @@ class action_plugin_dokucrypt2 extends DokuWiki_Action_Plugin {
         $event->data["script"][] = array (
             "type" => "text/javascript",
             "src" => DOKU_BASE."lib/plugins/dokucrypt2/init.js",
-            "defer" => "defer",
+            //"defer" => "defer",
             "_data" => "",
         );
 
