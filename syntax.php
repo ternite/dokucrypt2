@@ -25,11 +25,11 @@ class syntax_plugin_dokucrypt2 extends DokuWiki_Syntax_Plugin {
      */
     function getInfo(){
         return array(
-            'author' => 'Scott Moser, Maintainer Sherri W. ( contact me at syntaxseed.com)',
-            'email'  => 'smoser@brickies.net',
-            'date'   => '2020-10-14',
+            'author' => 'Scott Moser, Maintainer Sherri Wheeler',
+            'email'  => 'Twitter @SyntaxSeed or http://SyntaxSeed.com',
+            'date'   => '2020-10-19',
             'name'   => 'Client Side Encryption Plugin',
-            'desc'   => 'Allows Javascript Encryption of wiki text.',
+            'desc'   => 'Client side cryptography enabling encrypting blocks of text within a wiki page.',
             'url'    => 'https://www.dokuwiki.org/plugin:dokucrypt2',
         );
     }
@@ -52,7 +52,7 @@ class syntax_plugin_dokucrypt2 extends DokuWiki_Syntax_Plugin {
         switch ($state) {
           case DOKU_LEXER_ENTER :
                 // parse something like <ENCRYPTED> or <ENCRYPTED LOCK=foo>
-                $attr=array( "lock" => "default", "collapsed" => "0" );
+                $attr=array( "lock" => "default", "collapsed" => "1" );
                 if(($x=strpos($match,"LOCK="))!==false) {
                     $x+=strlen("LOCK=");
                     if(($end=strpos($match," ",$x))!==false) {
@@ -91,15 +91,15 @@ class syntax_plugin_dokucrypt2 extends DokuWiki_Syntax_Plugin {
                 //    "Decrypt text</a>\n" .
                 //    "<div id='$curid'></div>\n";
                 $renderer->doc.="<a id='$curid" . "_atag' " .
-                  "class='wikilink1 JSnocheck' " .
+                  "class='wikilink1 dokucrypt2dec JSnocheck' " .
                   "href=\"javascript:toggleCryptDiv(" .
                   "'$curid','" . $this->curLock["lock"] . "','" .
                   hsc(str_replace("\n","\\n",$match)) . "');\">" .
                   "Decrypt Encrypted Text</a>" .
-                  "[<a class='wikilink1 JSnocheck' " .
+                  "&nbsp;&nbsp;[<a class='wikilink1 dokucrypt2toggle JSnocheck' " .
                   "href=\"javascript:toggleElemVisibility('$curid');\">" .
                   "Toggle Visible</a>]\n" .
-                  "<PRE id='$curid' style=\"" .
+                  "<PRE id='$curid' class='dokucrypt2pre' style=\"" .
                      (($this->curLock["collapsed"] == 1) ?
                         "visibility:hidden;position:absolute" :
                         "visibility:visible;position:relative" ) .
