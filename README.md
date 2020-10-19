@@ -21,6 +21,7 @@ When the user hits 'Save' (or a draft is attempted to be saved) a prompt will op
 
 ## ChangeLog
 
+* 2020-10-19: Formatting changes, add CSS classes, collapse by default.
 * 2020-10-14: Temp fix for Dokuwiki 2020-07-29 "Hogfather". DecryptSecret button was not appearing on page edit.
 * 2020-02-07: Updated for PHP v 7+.
 * 2017-11-08: Fixed an issue with the heading buttons 'PATCH 1' required (above). Added plugin info text file.
