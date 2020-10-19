@@ -344,7 +344,7 @@ function decryptBlock(data,key) {
   if(lock===null) { lock="default"; }
 
   collapsed=getTagAttr(data.substring(0,tagend+1),"COLLAPSED");
-  if(collapsed===null) { collapsed="0"; }
+  if(collapsed===null || collapsed=="null") { collapsed="1"; }
 
   if(!(ptext=verifyDecrypt(data.substring(tagend+1,ptend),lock,key))) {
     return(false);
@@ -368,6 +368,8 @@ function getTagAttr(opentag,attr) {
 
 function encryptBlock(data,key) {
   var tagend=0, ptend=0, lock=null, ctext;
+  var collapsed = "1";
+
   if((tagend=data.indexOf(">"))==-1) {
     crypt_debug("no > in " + data);
     return(false);
@@ -380,7 +382,7 @@ function encryptBlock(data,key) {
   if(lock===null) { lock="default"; }
 
   collapsed=getTagAttr(data.substring(0,tagend+1),"COLLAPSED");
-  if(collapsed===null) { collapased="0"; }
+  if(collapsed===null || collapsed=="null") { collapsed="1"; }
 
   if(key===false) {
     key=getEncryptionKeyForLock(lock);
