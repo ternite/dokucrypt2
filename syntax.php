@@ -101,8 +101,8 @@ class syntax_plugin_dokucrypt2 extends DokuWiki_Syntax_Plugin {
                   "Toggle Visible</a>]\n" .
                   "<PRE id='$curid' class='dokucrypt2pre' style=\"" .
                      (($this->curLock["collapsed"] == 1) ?
-                        "visibility:hidden;position:absolute" :
-                        "visibility:visible;position:relative" ) .
+                        "visibility:hidden;position:absolute;white-space:pre-wrap" :
+                        "visibility:visible;position:relative;white-space:pre-wrap" ) .
                   "\">".hsc($match)."</PRE>";
                 $this->curNum++;
                 break;
