@@ -27,7 +27,7 @@ class syntax_plugin_dokucrypt2 extends DokuWiki_Syntax_Plugin {
         return array(
             'author' => 'Scott Moser, Maintainer Sherri Wheeler',
             'email'  => 'Twitter @SyntaxSeed or http://SyntaxSeed.com',
-            'date'   => '2020-10-19',
+            'date'   => '2021-03-03',
             'name'   => 'Client Side Encryption Plugin',
             'desc'   => 'Client side cryptography enabling encrypting blocks of text within a wiki page.',
             'url'    => 'https://www.dokuwiki.org/plugin:dokucrypt2',
@@ -101,8 +101,8 @@ class syntax_plugin_dokucrypt2 extends DokuWiki_Syntax_Plugin {
                   "Toggle Visible</a>]\n" .
                   "<PRE id='$curid' class='dokucrypt2pre' style=\"" .
                      (($this->curLock["collapsed"] == 1) ?
-                        "visibility:hidden;position:absolute" :
-                        "visibility:visible;position:relative" ) .
+                        "visibility:hidden;position:absolute;white-space:pre-wrap;word-wrap: break-word;" :
+                        "visibility:visible;position:relative;white-space:pre-wrap;word-wrap: break-word;" ) .
                   "\">".hsc($match)."</PRE>";
                 $this->curNum++;
                 break;
