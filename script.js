@@ -11,14 +11,22 @@ var encryptForSubmitInUse=false;
 // This should be replaced with some way that a plugin can request
 // onSubmit handlers for a given form element
 function editFormOnSubmit() {
-  // begin plugin modified code
-  // need the following to avoid 'msg is not defined' error. I'mnot sure why
-  var msg="Unsaved changes will be lost [edt].\nReally continue?";
-  if(encryptForSubmit()===false) { return(false); }
-  // end plugin modified code
-  var rc = changeCheck(msg);
-  if(window.event) { window.event.returnValue = rc; }
-  return rc;
+   // begin plugin modified code
+   // need the following to avoid 'msg is not defined' error. I'm not sure why
+   var msg="Unsaved changes will be lost [edit].\nReally continue?";
+   if(encryptForSubmit()===false) { return(false); }
+
+   // Move the original wiki_text element out of the form like we used to do in decryptEditSetup().
+   // To prevent accidental submission of unencrypted text.
+   var wikitext=document.getElementById('wiki__text');
+   var editform=document.getElementById('dw__editform');
+   editform.parentNode.insertBefore(wikitext,editform);
+
+   // end plugin modified code
+   var rc = changeCheck(msg);
+
+   if(window.event) { window.event.returnValue = rc; }
+   return rc;
 }
 
 /* Set up the decrypt button and necessary functionality. */
@@ -39,18 +47,25 @@ function decryptEditSetup(msg) {
       return(false);
     }
 
-    // create a hidden element with id 'wiki__text_submit' and
-    // name wikitext_edit (same as the wiki__text.  move the real
-    // wikI__text element out of the form (so it is not submitted and
-    // any <SECRET> text left unencrypted
+    // Create a hidden element with id 'wiki__text_submit' and
+    // name wikitext (same as the wiki__text).
+
     if(!(hiddentext=document.createElement('input'))) {
      return(false);
     }
+
     hiddentext.setAttribute('id', 'wiki__text_submit');
     hiddentext.setAttribute('name', 'wikitext');
     hiddentext.setAttribute('type','hidden');
     editform.insertBefore(hiddentext,null);
-    editform.parentNode.insertBefore(wikitext,editform);
+
+    // Move the real wiki__text element out of the form (so it is not submitted and
+    // any <SECRET> text left unencrypted).
+    // Commented out for update 2021-05-18 to fix the broken insert link toolbar button.
+    // Does this cause any issues? Can we submit unencrypted data?
+    // Just in case we now do this in editFormOnSubmit().
+    //editform.parentNode.insertBefore(wikitext,editform);
+
 
     if(!(decryptButton=document.createElement('input'))) {
      return(false);
