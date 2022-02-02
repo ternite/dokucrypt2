@@ -27,7 +27,7 @@ When the user hits 'Save' (or a draft is attempted to be saved) a prompt will op
 
 ## ChangeLog
 
-* 2022-02-02: Preperatory fixes/testing for PHP 8. Improvements for code style PSRs.
+* 2022-02-02: Preparatory fixes/testing for PHP 8. Improvements for code style PSRs.
 * 2021-05-18: Fix for internal link edit toolbar button. Issue #12.
 * 2021-03-03: Add wrapping for the pre tag. Contributed by dustin-something.
 * 2020-10-19: Formatting changes, add CSS classes, collapse by default.
