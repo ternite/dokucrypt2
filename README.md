@@ -9,7 +9,7 @@
 This is a plugin for DokuWiki to support client side cryptography.
 
 * https://www.dokuwiki.org/plugin:dokucrypt2
-* Licence: MIT (https://opensource.org/licenses/MIT)
+* Licence: GPL-2.0 (https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 * Author: Originally by By Scott Moser. Maintained by Sherri Wheeler. (Twitter @SyntaxSeed. https://syntaxseed.com)
 
 > **!! Warning:** This plugin should not replace a password manager or peer reviewed cryptography tools for high-priority use. Do not store mission critical type data with this plugin - I cannot be sure that the info is not cached by DokuWiki or the web browser.
