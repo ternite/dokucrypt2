@@ -224,7 +224,7 @@ function toggleElemVisibility(elemid) {
   this is called from <A HREF=> links to decrypt the  inline html
 */
 function toggleCryptDiv(elemid,lock,ctext) {
-   var elem=null, atab=null, key="", ptext="";
+   var elem=null, atag=null, key="", ptext="";
    var ctStr="Decrypt Encrypted Text", ptStr="Hide Plaintext";
    elem=document.getElementById(elemid);
    atag=document.getElementById(elemid + "_atag");

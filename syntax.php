@@ -110,16 +110,13 @@ class syntax_plugin_dokucrypt2 extends DokuWiki_Syntax_Plugin
                 $this->curLock=$match;
                 break;
               case DOKU_LEXER_UNMATCHED:
-                $curid="crypto_decrypted_" . $this->curNum;
-                // $renderer->doc.="<a href=\"javascript:decryptToId(" .
-                //    "'$curid','" . $this->curLock . "','$match');\">" .
-                //    "Decrypt text</a>\n" .
-                //    "<div id='$curid'></div>\n";
+                $curid = "crypto_decrypted_" . $this->curNum;
+
                 $renderer->doc.="<a id='$curid" . "_atag' " .
                   "class='wikilink1 dokucrypt2dec JSnocheck' " .
                   "href=\"javascript:toggleCryptDiv(" .
                   "'$curid','" . $this->curLock["lock"] . "','" .
-                  hsc(str_replace("\n", "\\n", $match)) . "');\">" .
+                  htmlspecialchars(str_replace("\n", "\\n", $match)) . "');\">" .
                   "Decrypt Encrypted Text</a>" .
                   "&nbsp;&nbsp;[<a class='wikilink1 dokucrypt2toggle JSnocheck' " .
                   "href=\"javascript:toggleElemVisibility('$curid');\">" .
@@ -128,7 +125,7 @@ class syntax_plugin_dokucrypt2 extends DokuWiki_Syntax_Plugin
                      (($this->curLock["collapsed"] == 1) ?
                         "visibility:hidden;position:absolute;white-space:pre-wrap;word-wrap: break-word;" :
                         "visibility:visible;position:relative;white-space:pre-wrap;word-wrap: break-word;") .
-                  "\">".hsc($match)."</PRE>";
+                  "\">". htmlspecialchars($match)."</PRE>";
                 $this->curNum++;
                 break;
               case DOKU_LEXER_EXIT:
