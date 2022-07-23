@@ -247,6 +247,10 @@ function toggleCryptDiv(elemid,lock,ctext) {
       // make it visible
       elem.style.visibility="visible";
       elem.style.position="relative";
+	  //put it into the clipboard
+	  copyToClipboard(ptext)
+		.then(() => elem.innerHTML += " {copied into the clipboard}")
+		.catch(() => console.log('Encrypted value could not be copied to the clipboard.'));
    } else { alert("Broken"); return; }
 }
 
@@ -2168,3 +2172,29 @@ function decode_utf8(s) {
   return s;
 }
 // END: javscrypt/utf-8.js
+
+//copy to clipboard from: https://stackoverflow.com/questions/51805395/navigator-clipboard-is-undefined
+
+function copyToClipboard(textToCopy) {
+    // navigator clipboard api needs a secure context (https)
+    if (navigator.clipboard && window.isSecureContext) {
+        // navigator clipboard api method'
+        return navigator.clipboard.writeText(textToCopy);
+    } else {
+        // text area method
+        let textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        // make the textarea out of viewport
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        return new Promise((res, rej) => {
+            // here the magic happens
+            document.execCommand('copy') ? res() : rej();
+            textArea.remove();
+        });
+    }
+}
