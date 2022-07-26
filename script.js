@@ -247,10 +247,20 @@ function toggleCryptDiv(elemid,lock,ctext) {
       // make it visible
       elem.style.visibility="visible";
       elem.style.position="relative";
-	  //put it into the clipboard
-	  copyToClipboard(ptext)
-		.then(() => elem.innerHTML += " {copied into the clipboard}")
-		.catch(() => console.log('Encrypted value could not be copied to the clipboard.'));
+	  
+      if (JSINFO["plugin_dokucrypt2_CONFIG_copytoclipboard"] == 1) {
+        //put it into the clipboard
+        copyToClipboard(ptext).then(() => {
+            if (JSINFO['plugin_dokucrypt2_CONFIG_hidepasswordoncopytoclipboard']) {
+              elem.innerHTML = "{" + JSINFO['plugin_dokucrypt2_TEXT_copied_to_clipboard'] + "}";
+            } else {
+              elem.innerHTML += " {" + JSINFO['plugin_dokucrypt2_TEXT_copied_to_clipboard'] + "}";
+            };
+            console.log('Encrypted value has been copied to the clipboard.');
+          }).catch(() => {
+            console.log('Encrypted value could not be copied to the clipboard.');
+          });
+	  }
    } else { alert("Broken"); return; }
 }
 
