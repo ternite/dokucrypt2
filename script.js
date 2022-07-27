@@ -362,15 +362,12 @@ function encryptMixedText(x) {
   return(ret);
 }
 
-/*function verifyDecrypt(ctext,lock,key,callback_function) {
+/*function verifyDecrypt(ctext,lock,key) {
   var ptext=null;
   if(undefined!==crypt_keys[lock]) { key=crypt_keys[lock]; }
   if(key===false && (undefined===crypt_keys[lock])) {
-    pw_prompt({
-      lm:"Enter passphrase for lock " + lock, 
-      callback_function
-    });
-    
+    var key=prompt("Enter passphrase for lock " + lock);
+    if(key===null) { return(false); } // user hit cancel
     if(!(ptext=decryptTextString(ctext,key))) {
       var pstr="Try again: Enter passphrase for lock " + lock;
       while(null!==(key=prompt(pstr))) {
