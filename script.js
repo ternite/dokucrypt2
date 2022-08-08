@@ -224,7 +224,7 @@ function toggleElemVisibility(elemid) {
   this is called from <A HREF=> links to decrypt the  inline html
 */
 function toggleCryptDiv(elemid,lock,ctext) {
-   var elem=null, atag=null, key="", ptext="";
+   var elem=null, atab=null, key="", ptext="";
    var ctStr="Decrypt Encrypted Text", ptStr="Hide Plaintext";
    elem=document.getElementById(elemid);
    atag=document.getElementById(elemid + "_atag");
@@ -247,6 +247,20 @@ function toggleCryptDiv(elemid,lock,ctext) {
       // make it visible
       elem.style.visibility="visible";
       elem.style.position="relative";
+	  
+      if (JSINFO["plugin_dokucrypt2_CONFIG_copytoclipboard"] == 1) {
+        //put it into the clipboard
+        copyToClipboard(ptext).then(() => {
+            if (JSINFO['plugin_dokucrypt2_CONFIG_hidepasswordoncopytoclipboard']) {
+              elem.innerHTML = "{" + JSINFO['plugin_dokucrypt2_TEXT_copied_to_clipboard'] + "}";
+            } else {
+              elem.innerHTML += " {" + JSINFO['plugin_dokucrypt2_TEXT_copied_to_clipboard'] + "}";
+            };
+            console.log('Encrypted value has been copied to the clipboard.');
+          }).catch(() => {
+            console.log('Encrypted value could not be copied to the clipboard.');
+          });
+	  }
    } else { alert("Broken"); return; }
 }
 
@@ -2168,3 +2182,29 @@ function decode_utf8(s) {
   return s;
 }
 // END: javscrypt/utf-8.js
+
+//copy to clipboard from: https://stackoverflow.com/questions/51805395/navigator-clipboard-is-undefined
+
+function copyToClipboard(textToCopy) {
+    // navigator clipboard api needs a secure context (https)
+    if (navigator.clipboard && window.isSecureContext) {
+        // navigator clipboard api method'
+        return navigator.clipboard.writeText(textToCopy);
+    } else {
+        // text area method
+        let textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        // make the textarea out of viewport
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        return new Promise((res, rej) => {
+            // here the magic happens
+            document.execCommand('copy') ? res() : rej();
+            textArea.remove();
+        });
+    }
+}
