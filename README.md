@@ -25,8 +25,17 @@ Hi world.  I have a secret.  Can you read it?
 
 When the user hits 'Save' (or a draft is attempted to be saved) a prompt will open, asking the user to enter a pass phrase key for the encryption. Once supplied, the encryption will be done in the browser and the encrypted text submitted to the server.
 
+## Settings
+
+This plugin includes configuration settings.
+
+* `copytoclipboard` - If set to true, the plugin tries to copy the decrypted value to the clipboard.
+* `hidepasswordoncopytoclipboard` - If set to true, the decrypted value will not be shown after being copied to the clipboard (see option 'copytoclipboard').
+
 ## ChangeLog
 
+* 2022-08-08: Added ability and setting for copying the contents to the clipboard on decrypt.
+  * Contributed by Thomas Schäfer (https://github.com/ternite).
 * 2022-02-02: Preparatory fixes/testing for PHP 8. Improvements for code style PSRs.
 * 2021-05-18: Fix for internal link edit toolbar button. Issue #12.
 * 2021-03-03: Add wrapping for the pre tag. Contributed by dustin-something.

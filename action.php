@@ -19,7 +19,9 @@ class action_plugin_dokucrypt2 extends DokuWiki_Action_Plugin
     public function register($controller)
     {
         $controller->register_hook('TPL_METAHEADER_OUTPUT', 'BEFORE', $this, 'c_hookjs');
+        $controller->register_hook('DOKUWIKI_STARTED', 'AFTER', $this, '_addconfig');
     }
+
     public function c_hookjs(&$event, $param)
     {
 
@@ -37,4 +39,12 @@ class action_plugin_dokucrypt2 extends DokuWiki_Action_Plugin
             "_data" => "",
         );
     }
+  
+    public function _addconfig(&$event, $param)
+    {
+        global $JSINFO;
+        $JSINFO['plugin_dokucrypt2_CONFIG_copytoclipboard'] = $this->getConf('copytoclipboard');
+        $JSINFO['plugin_dokucrypt2_CONFIG_hidepasswordoncopytoclipboard'] = $this->getConf('hidepasswordoncopytoclipboard');
+        $JSINFO['plugin_dokucrypt2_TEXT_copied_to_clipboard'] = $this->getLang('copied_to_clipboard');
+	}
 }
