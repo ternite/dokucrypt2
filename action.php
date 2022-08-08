@@ -39,7 +39,7 @@ class action_plugin_dokucrypt2 extends DokuWiki_Action_Plugin
             "_data" => "",
         );
     }
-
+  
     public function _addconfig(&$event, $param)
     {
         global $JSINFO;
