@@ -1,7 +1,6 @@
 <?php
 /**
- * German language file for dokucrypt2 plugin
- *
+ * English language file for dokucrypt2 plugin
  */
 
-$lang['copied_to_clipboard'] = "copied to clipboard";
+$lang['copied_to_clipboard'] = "Copied to clipboard";

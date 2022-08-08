@@ -19,8 +19,9 @@ class action_plugin_dokucrypt2 extends DokuWiki_Action_Plugin
     public function register($controller)
     {
         $controller->register_hook('TPL_METAHEADER_OUTPUT', 'BEFORE', $this, 'c_hookjs');
-		$controller->register_hook('DOKUWIKI_STARTED', 'AFTER',  $this, '_addconfig');
+        $controller->register_hook('DOKUWIKI_STARTED', 'AFTER', $this, '_addconfig');
     }
+
     public function c_hookjs(&$event, $param)
     {
 
@@ -38,6 +39,7 @@ class action_plugin_dokucrypt2 extends DokuWiki_Action_Plugin
             "_data" => "",
         );
     }
+
     public function _addconfig(&$event, $param)
     {
         global $JSINFO;
