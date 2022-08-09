@@ -235,20 +235,14 @@ function toggleCryptDiv(elemid,lock,ctext) {
       // encrypt text (set back to ctext, and forget key)
       elem.innerHTML=ctext;
       atag.innerHTML=ctStr;
+      elem.style.visibility="hidden";
+      elem.style.position="absolute";
       crypt_keys[lock]=undefined;
    } else if (atag.innerHTML==ctStr) {
       // decrypt text
       
-      // create callback function for handling the submit button in the password prompt
-	  verifyDecrypt_function = function(password) {
-        key = password;
-		if(key===null) { alert("unable to find key for lock " + lock); return; } // user hit cancel
-		if(!(ptext=decryptTextString(ctext,key))) {
-			alert("failed to decrypt with provided key");
-			return;
-		} else {
-          crypt_keys[lock]=key;
-          elem.innerHTML=ptext;
+	  success_callback_function = function(ptext) {
+		  elem.innerHTML=ptext;
           atag.innerHTML=ptStr;
           // make it visible
           elem.style.visibility="visible";
@@ -267,17 +261,17 @@ function toggleCryptDiv(elemid,lock,ctext) {
               console.log('Encrypted value could not be copied to the clipboard.');
             });
 	      }
-		}
-      };
-      
+	  };
+            
 	  // now test if there is a key cached for the given lock - if no key can be determined, show password prompt
 	  key = false;
       if(undefined!==crypt_keys[lock]) { key=crypt_keys[lock]; }
       if(key===false && (undefined===crypt_keys[lock])) {
-          pw_prompt({
+          pw_prompt(ctext,{
 	      lm:"Enter passphrase for lock " + lock, 
+		  lock:lock,
 		  elem:elem,
-          callback:verifyDecrypt_function
+          success_callback:success_callback_function
         });
 	  } else {
         var xkey=key;
@@ -286,29 +280,9 @@ function toggleCryptDiv(elemid,lock,ctext) {
           if(key!==false) { alert("failed to decrypt with provided key"); }
           return;
         } else {
-          verifyDecrypt_function(key);
+          verifyDecrypt_function(ctext,key,success_callback_function);
         }
       }
-
-      elem.innerHTML=ptext;
-      atag.innerHTML=ptStr;
-      // make it visible
-      elem.style.visibility="visible";
-      elem.style.position="relative";
-	  
-      if (JSINFO["plugin_dokucrypt2_CONFIG_copytoclipboard"] == 1) {
-        //put it into the clipboard
-        copyToClipboard(ptext).then(() => {
-            if (JSINFO['plugin_dokucrypt2_CONFIG_hidepasswordoncopytoclipboard']) {
-              elem.innerHTML = "{" + JSINFO['plugin_dokucrypt2_TEXT_copied_to_clipboard'] + "}";
-            } else {
-              elem.innerHTML += " {" + JSINFO['plugin_dokucrypt2_TEXT_copied_to_clipboard'] + "}";
-            };
-            console.log('Encrypted value has been copied to the clipboard.');
-          }).catch(() => {
-            console.log('Encrypted value could not be copied to the clipboard.');
-          });
-	  }
    } else { alert("Broken"); return; }
 }
 
@@ -333,7 +307,7 @@ function crypt_debug(str) {
   // document.getElementById("debug_field").value+=str + "\n";
   debugval+=str;
 }
-/* decrypt the text between <CRYPT> and </CRYPT> */
+/* decrypt the text between <SECRET> and </SECRET> */
 function decryptMixedText(x) {
   var tag=tag_enc;
   var ret="", key="", ctext="";
@@ -2266,12 +2240,27 @@ var submit_button = null;
 var cancel_button = null;
 var submit_event = null;
 var cancel_event = null;
-window.pw_prompt = function(options) {
+
+  // create callback function for handling the submit button in the password prompt
+  verifyDecrypt_function = function(ctext,lock,password,success_callback) {
+	key = password;
+	if(key===null) { alert("unable to find key for lock " + lock); return; } // user hit cancel
+	if(!(ptext=decryptTextString(ctext,key))) {
+		alert("failed to decrypt with provided key");
+		return;
+	} else {
+	  crypt_keys[lock]=key;
+	  success_callback(ptext);
+	}
+  };
+  
+window.pw_prompt = function(ctext,options) {
     var lm = options.lm || "Password:",
         bm = options.bm || "Submit",
         cm = options.cm || "Cancel",
+		lock = options.lock || "default",
 		elem = options.elem || document.body;
-    if(!options.callback) { 
+    if(!options.success_callback) { 
         alert("No callback function provided! Please provide one.") 
     };
 
@@ -2301,7 +2290,7 @@ window.pw_prompt = function(options) {
 	}
 	
     submit_event = function() {
-        options.callback(input.value);
+        verifyDecrypt_function(ctext,lock,input.value,options.success_callback);
         if (prompt.parentNode)
             prompt.parentNode.removeChild(prompt);
     };
