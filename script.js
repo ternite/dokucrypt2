@@ -241,12 +241,16 @@ function toggleCryptDiv(elemid,lock,ctext) {
    } else if (atag.innerHTML==ctStr) {
       // decrypt text
       
-	  success_callback_function = function(ptext) {
+	  // callback manages what to do and where to insert the decrypted text to
+	  success_callback_function = function(ptext,lock,key) {
 		  elem.innerHTML=ptext;
           atag.innerHTML=ptStr;
           // make it visible
           elem.style.visibility="visible";
           elem.style.position="relative";
+		  
+		  //store the key that was used
+          crypt_keys[lock]=key;
 	        
           if (JSINFO["plugin_dokucrypt2_CONFIG_copytoclipboard"] == 1) {
             //put it into the clipboard
@@ -280,7 +284,7 @@ function toggleCryptDiv(elemid,lock,ctext) {
           if(key!==false) { alert("failed to decrypt with provided key"); }
           return;
         } else {
-          verifyDecrypt_function(ctext,key,success_callback_function);
+          verifyDecrypt_function(ctext,lock,key,success_callback_function);
         }
       }
    } else { alert("Broken"); return; }
@@ -2241,18 +2245,16 @@ var cancel_button = null;
 var submit_event = null;
 var cancel_event = null;
 
-  // create callback function for handling the submit button in the password prompt
-  verifyDecrypt_function = function(ctext,lock,password,success_callback) {
-	key = password;
-	if(key===null) { alert("unable to find key for lock " + lock); return; } // user hit cancel
+// create callback function for handling decryption in the password prompt
+// calls the success_callback function upon success
+verifyDecrypt_function = function(ctext,lock,key,success_callback) {
 	if(!(ptext=decryptTextString(ctext,key))) {
 		alert("failed to decrypt with provided key");
 		return;
 	} else {
-	  crypt_keys[lock]=key;
-	  success_callback(ptext);
+	  success_callback(ptext,lock,key);
 	}
-  };
+};
   
 window.pw_prompt = function(ctext,options) {
     var lm = options.lm || "Password:",
@@ -2260,7 +2262,7 @@ window.pw_prompt = function(ctext,options) {
         cm = options.cm || "Cancel",
 		lock = options.lock || "default",
 		elem = options.elem || document.body;
-    if(!options.success_callback) { 
+    if(!options.success_callback) { // callback manages what to do and where to insert the decrypted text to  
         alert("No callback function provided! Please provide one.") 
     };
 
