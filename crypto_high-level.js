@@ -25,7 +25,7 @@ function decryptMixedText(x) {
       alert("unable to close to open tag"); return(false);
     }
     if((closetag=x.indexOf("</" + tag + ">",opentag_end))==-1) {
-      alert("unable to find close of " + tag + " tag"); return(false);
+      alert("unable to find closing of " + tag + " tag"); return(false);
     }
     if(!(ctext=decryptBlock(x.substring(cur,closetag+tag.length+3)))) {
       return(false);
@@ -53,13 +53,13 @@ function encryptMixedText(x) {
   var tagend=0, opentag=0, blockend=0, pos=0;
   while((cur=x.indexOf("<" + tag,pos))!=-1) {
     if((opentag_end=x.indexOf(">",cur))==-1) {
-      alert("unable to find closing of <SECRET> tag"); return(null);
+      alert("unable to find closing angle bracked of <SECRET> tag"); return(null);
     }
     if((closetag=x.indexOf("</" + tag + ">",opentag_end))==-1) {
       x=x+"</" + tag + ">";
       // if there is no close tag, add one to the end.
-      closetag=x.indexOf("</" + tag + ">",opentag_end);
-      // alert("unable to find close of " + tag + " tag"); return(false);
+      //closetag=x.indexOf("</" + tag + ">",opentag_end); // removed this because it can cause the loss of plaintext that was not intended to be encrypted (e.g. unvoluntarily encrypting <SECRET>1<(SECRET>... would encrypt more text than intended just because of a syntax error.
+      alert("unable to find close of " + tag + " tag"); return(false);
     }
     if(!(ctext=encryptBlock(x.substring(cur,closetag+tag.length+3)))) {
       return(null);
