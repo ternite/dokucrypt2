@@ -4,13 +4,23 @@
 /**
  * Handles necessary actions before submitting the 'wikitext' edit form.
  */
+var currentSubmitter = null;
+
 function editFormOnSubmit(e) {
-  if (e.submitter.name.includes("cancel")) return true;
+  if (e && e.submitter) {
+    let curSub = e.submitter;
+	if (curSub.name.length==0) return false;
+	if (curSub.name.includes("cancel")) return true;
+    
+	// only store the submitter if we got this far
+	currentSubmitter = curSub;
+  }
+  
   if (async_getKey_active) return false;
 
   if(hasUnencryptedSecrets()) {
     askForEncryptPasswordWithVerification();
-    return(false);
+    return false;
   } else {
     // there is no unencrypted content, so we can prepare submitting the form, now
 
@@ -24,7 +34,7 @@ function editFormOnSubmit(e) {
     var hiddentext=document.getElementById('wiki__text_submit');
     hiddentext.value=wikitext.value;
 
-    return(true)
+    return true;
   }
 }
 
@@ -159,9 +169,13 @@ function askForEncryptPasswordWithVerification() {
       if (encrypted_text) {
         wikitext.value=encrypted_text;
         hiddentext.value=encrypted_text;
+		
+		// retry submit
+		currentSubmitter.click();
       } else {
         setKeyForLock(lock,null);
         alert("The text could not be encrypted!");
+		currentSubmitter = null;
       }
     };
 	
