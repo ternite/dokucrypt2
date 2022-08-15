@@ -187,7 +187,6 @@ function askForDecryptPassword() {
   lock = "default";
   
   // callback manages what to do and where to insert the decrypted text to
-  // call pw_prompt and let the callback call the next pw_prompt for input verification (repeat passwort)
   do_decryption = function(key) {
     // important: cache the key first, then try to do the decryption!
     setKeyForLock(lock,key);
@@ -198,7 +197,7 @@ function askForDecryptPassword() {
       hiddentext.value=decrypted_text;
     } else {
       setKeyForLock(lock,null);
-      alert("The text could not be encrypted!");
+      alert("The text could not be decrypted!");
     }
   };
   
@@ -370,7 +369,6 @@ window.pw_prompt = function(options) {
         //remove event listeners
         submit_button.removeEventListener("click", submit_event);
         cancel_button.removeEventListener("click", cancel_event);
-		input.removeEventListener("keyup", enter_event);
     }
     
     submit_event = function() {
@@ -384,13 +382,9 @@ window.pw_prompt = function(options) {
             promptElem.parentNode.removeChild(promptElem);
         async_getKey_active = false;
     };
-	enter_event = function(e) {
-        if (e.keyCode == 13) submit_event();
-    };
 	
     label.textContent = lm;
     input.value = "";
-    input.addEventListener("keyup", enter_event, false);
     submit_button.textContent = bm;
     submit_button.addEventListener("click", submit_event, false);
     cancel_button.textContent = cm;
