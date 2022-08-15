@@ -3,6 +3,18 @@
 
 /* DOKUWIKI:include_once crypto_low-level.js */
 
+var tag_enc="ENCRYPTED";
+var tag_pt="SECRET";
+var crypt_keys=[];
+
+function getKeyForLock(lock) {
+	return crypt_keys[lock];
+}
+
+function setKeyForLock(lock,key) {
+	crypt_keys[lock]=key;
+}
+
 /* decrypt the text between <ENCRYPTED> and </ENCRYPTED> */
 function decryptMixedText(x) {
   var tag=tag_enc;
@@ -120,7 +132,8 @@ function encryptBlock(data) {
   collapsed=getTagAttr(data.substring(0,tagend+1),"COLLAPSED");
   if(collapsed===null || collapsed=="null") { collapsed="1"; }
 
-  if(key=crypt_keys[lock]===false) {
+  var key=getKeyForLock(lock);
+  if(key===false) {
     return(null);
   } else {
     if(!(ctext=encryptTextString(data.substring(tagend+1,ptend),key))) {

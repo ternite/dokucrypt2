@@ -1,14 +1,12 @@
 /* DOKUWIKI:include_once crypto_high-level.js */
 
-var crypt_keys=[];
-var tag_enc="ENCRYPTED";
-var tag_pt="SECRET";
 
 /**
  * Handles necessary actions before submitting the 'wikitext' edit form.
  */
-function editFormOnSubmit() {
-  if (async_getKey_active) {return false;}
+function editFormOnSubmit(e) {
+  if (e.submitter.name.includes("cancel")) return true;
+  if (async_getKey_active) return false;
 
   if(hasUnencryptedSecrets()) {
     askForEncryptPasswordWithVerification();
@@ -78,7 +76,7 @@ function decryptEditSetup(msg) {
     decryptButton.setAttribute('className','button'); // required for IE
     preview.parentNode.insertBefore(decryptButton,preview);
 	
-    editform.onsubmit = function() {return editFormOnSubmit();};
+    editform.onsubmit = function() {return editFormOnSubmit(event);};
 
     // The following is taken from lib/scripts/locktimer.js (state of 2018-06-08) to make drafts work.
     // We override the locktimer refresh function to abort saving of drafts with unencrypted content.
@@ -156,14 +154,14 @@ function askForEncryptPasswordWithVerification() {
       }
       
       // important: cache the key first, then try to do the encryption!
-      crypt_keys[lock] = key;
+      setKeyForLock(lock,key);
       
       var encrypted_text = encryptMixedText(wikitext.value);
       if (encrypted_text) {
         wikitext.value=encrypted_text;
         hiddentext.value=encrypted_text;
       } else {
-        crypt_keys[lock] = null;
+        setKeyForLock(lock,null);
         alert("The text could not be encrypted!");
       }
     };
@@ -229,19 +227,18 @@ function toggleCryptDiv(elemid,lock,ctext) {
       atag.innerHTML=ctStr;
       elem.style.visibility="hidden";
       elem.style.position="absolute";
-      crypt_keys[lock]=undefined;
+      setKeyForLock(lock,undefined);
    } else if (atag.innerHTML==ctStr) {
       // decrypt text
-      alert("1");
+      
       // callback manages what to do and where to insert the decrypted text to
       do_decryption = function(given_key) {
 		//try the decryption
         if(!(ptext=decryptTextString(ctext,given_key))) {
-			alert("3a:"+given_key+".  .  ."+ctext+". .. ."+ptext);
           alert("failed to decrypt with provided key");
           return;
         }
-		alert("3b");
+
         elem.innerHTML=ptext;
         atag.innerHTML=ptStr;
         // make it visible
@@ -249,7 +246,7 @@ function toggleCryptDiv(elemid,lock,ctext) {
         elem.style.position="relative";
         
         //store the key that was used
-        crypt_keys[lock]=given_key;
+        setKeyForLock(lock,given_key);
           
         if (JSINFO["plugin_dokucrypt2_CONFIG_copytoclipboard"] == 1) {
           //put it into the clipboard
@@ -267,9 +264,8 @@ function toggleCryptDiv(elemid,lock,ctext) {
       };
 		
       // now test if there is a key cached for the given lock - if no key can be determined, show password prompt
-      var key = crypt_keys[lock];
+      var key = getKeyForLock(lock);
       if(key===false || key===undefined || key === null) {
-        alert("2a");
 		pw_prompt({
           lm:"Enter passphrase for lock " + lock, 
           lock:lock,
@@ -278,7 +274,6 @@ function toggleCryptDiv(elemid,lock,ctext) {
         });
 
       } else {
-		  alert("2b");
         do_decryption(key);
       }
    } else { alert("Broken"); return; }
