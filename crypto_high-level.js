@@ -27,7 +27,7 @@ function decryptMixedText(x) {
     if((closetag=x.indexOf("</" + tag + ">",opentag_end))==-1) {
       alert("unable to find close of " + tag + " tag"); return(false);
     }
-    if(!(ctext=decryptBlock(x.substring(cur,closetag+tag.length+3),false))) {
+    if(!(ctext=decryptBlock(x.substring(cur,closetag+tag.length+3)))) {
       return(false);
     }
     ret+=x.substring(pos,cur) + ctext;
@@ -49,7 +49,7 @@ function decryptMixedText(x) {
  */
 function encryptMixedText(x) {
   var tag=tag_pt;
-  var ret="", key="", ctext="";
+  var ret="", kctext="";
   var tagend=0, opentag=0, blockend=0, pos=0;
   while((cur=x.indexOf("<" + tag,pos))!=-1) {
     if((opentag_end=x.indexOf(">",cur))==-1) {
@@ -71,7 +71,7 @@ function encryptMixedText(x) {
   return(ret);
 }
 
-function decryptBlock(data,key) {
+function decryptBlock(data) {
   var tagend=0, ptend=0, lock=null, ptext;
   if((tagend=data.indexOf(">"))==-1) {
     //crypt_debug("no > in " + data);
@@ -87,8 +87,13 @@ function decryptBlock(data,key) {
   collapsed=getTagAttr(data.substring(0,tagend+1),"COLLAPSED");
   if(collapsed===null || collapsed=="null") { collapsed="1"; }
 
-  if(!(ptext=verifyDecrypt(data.substring(tagend+1,ptend),lock,key))) {
+  var key=getKeyForLock(lock);
+  if(key===false) {
     return(false);
+  } else {
+    if(!(ptext=decryptTextString(data.substring(tagend+1,ptend),key))) {
+      return(false);
+    }
   }
   return("<" + tag_pt + " LOCK=" + lock + " " +
      "COLLAPSED=" + collapsed + ">" + ptext + "</" + tag_pt + ">");
@@ -139,7 +144,7 @@ function encryptBlock(data) {
     if(!(ctext=encryptTextString(data.substring(tagend+1,ptend),key))) {
       return(null);
     }
-    return("<ENCRYPTED LOCK=" + lock + " " + "COLLAPSED=" + collapsed + ">" + ctext + "</ENCRYPTED>");
+    return("<"+tag_enc+" LOCK=" + lock + " " + "COLLAPSED=" + collapsed + ">" + ctext + "</"+tag_enc+">");
   }
 }
 

@@ -137,7 +137,6 @@ function hasUnencryptedSecrets() {
  * Adds an input dialog to the edit page to ask the user for the encryption password. Works with callbacks and therefore represents an asynchronous workflow.
  */
 function askForEncryptPasswordWithVerification() {
-  
   var wikitext = document.getElementById('wiki__text');
   var hiddentext=document.getElementById('wiki__text_submit');
   
@@ -181,21 +180,42 @@ function askForEncryptPasswordWithVerification() {
   });
 }
 
+function askForDecryptPassword() {
+  var wikitext = document.getElementById('wiki__text');
+  var hiddentext=document.getElementById('wiki__text_submit');
+  
+  lock = "default";
+  
+  // callback manages what to do and where to insert the decrypted text to
+  // call pw_prompt and let the callback call the next pw_prompt for input verification (repeat passwort)
+  do_decryption = function(key) {
+    // important: cache the key first, then try to do the decryption!
+    setKeyForLock(lock,key);
+      
+    var decrypted_text = decryptMixedText(wikitext.value);
+    if (decrypted_text) {
+      wikitext.value=decrypted_text;
+      hiddentext.value=decrypted_text;
+    } else {
+      setKeyForLock(lock,null);
+      alert("The text could not be encrypted!");
+    }
+  };
+  
+  pw_prompt({
+    lm:"Enter passphrase key for lock " + lock,
+    elem:wikitext,
+    submit_callback:do_decryption
+  });
+  
+}
+
 /**
  * Handles the actions after clicking the Decrypt button in the edit form. Tries to
  * decrypt any <ENCRYPTED> blocks.
  */
 function decryptButtonOnClick() {
-  var elem=null, newtext="";
-  if(!(elem=document.getElementById('wiki__text'))) {
-    // alert("no form wiki__text\n");
-    return(true);
-  }
-  if((newtext=decryptMixedText(elem.value))===false) {
-    alert("failed to decrypt wiki__text");
-    return(false);
-  }
-  elem.value=newtext;
+  askForDecryptPassword();
   return(true);
 }
 
