@@ -265,7 +265,7 @@ function toggleCryptDiv(elemid,lock,ctext) {
 		
       // now test if there is a key cached for the given lock - if no key can be determined, show password prompt
       var key = getKeyForLock(lock);
-      if(key===false || key===undefined || key === null) {
+      if(key===false || key===undefined || key === null || !decryptTextString(ctext,key)) {
 		pw_prompt({
           lm:"Enter passphrase for lock " + lock, 
           lock:lock,
