@@ -1,5 +1,6 @@
 // This file contains a flat high-level programming interface for dokucrypt2.
-// This interface is specific for the module's syntax.
+// This interface is specific for the module's syntax. All functions defined
+// here work synchronously.
 
 /* DOKUWIKI:include_once crypto_low-level.js */
 
